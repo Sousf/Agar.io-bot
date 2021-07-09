@@ -19,16 +19,17 @@ def split():
 
 def img_grab():
     # Grab pixel colour on screen
+    # RGB Colour of the splitter is (51, 255, 51)
 
-
-    # Grab the colour of the green splitter (No longer required)
-    splitter = (1720,1087, 1720+1,1087+1)
-    splitter_img = ImageGrab.grab(splitter)
-    grayImage = ImageOps.grayscale(splitter_img)
-    splitter_colour = grayImage.getcolors()
-
-    # Colour of the splitter is [(1, 171)]
+    # the box for grab() is set to None to capture the entire monitor screen as an image.
+    screenImage = ImageGrab.grab(None)
+    print(screenImage)
+     # Grab the colour of the green splitter (No longer required)
+    splitter_colour = screenImage.getpixel((1720,1087))
     print(splitter_colour)
+
+
+
 
 
 def moveMouseCursor():
