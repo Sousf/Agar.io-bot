@@ -17,8 +17,8 @@ from grid import Grid;
 k_numAgars = 20;
 k_numBlobs = 70;
 k_blobSpawnRate = 1.5;
-k_frameRate = 0.05;
-k_runTime = 30;
+k_frameRate = 1/60;
+k_runTime = 10;
 k_windowHeight = 720;
 k_windowWidth = 1080;
 
@@ -177,6 +177,11 @@ class Simulation():
             agar.think = False;
         self.agars = [];
         self.isRunning = False;
+
+        # closes the window after a short buffer (not working)
+        destroyWindow = Timer(3, self.window.destroy, args=None, kwargs=None)
+        destroyWindow.start();
+
         return;
 
 # Runs a simulation with ~20 'dumb' agar bots
@@ -208,8 +213,8 @@ class PlayerAndBotSimulation(Simulation):
     def spawnAgars(self, numAgars : int = k_numAgars) -> list:
         spawnPos = Vector(self.canvas.winfo_width() / 2, self.canvas.winfo_height() / 2);
         agar = Player(id = 0, size = 200, position = spawnPos, velocity = Vector(), think = True, thinkInterval = self.frameRate, window = self.window, canvas = self.canvas);
-        self.drawAgar(_agar);
-        self.agars.append(_agar);
+        self.drawAgar(agar);
+        self.agars.append(agar);
         for i in range(1, numAgars + 1):
             spawnPos = Vector.withinBounds(self.canvas.winfo_width() / 2, self.canvas.winfo_height() / 2);
             spawnPos.x += self.canvas.winfo_width() / 2;
