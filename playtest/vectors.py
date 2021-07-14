@@ -42,14 +42,15 @@ class Vector():
     def mapPosOnUnitCircle(self):
         x = self.x;
         y = self.y;
+        if (x == 0 and y == 0): return Vector();
         _x = x / math.sqrt(x * x + y * y);
         _y = y / math.sqrt(x * x + y * y);
         return Vector(_x, _y);
 
-    # generates a random point within the bounds x,y within (-a,a),(-b,b)
+    # generates a random point within the bounds x,y within (a0, a1),(b0, b1)
     def withinBounds(a, b):
-        x = (random.random() - 0.5) * 2 * a;
-        y = (random.random() - 0.5) * 2 * b;
+        x = random.random() * (a[1] - a[0]);
+        y = random.random() * (b[1] - b[0]);
         return Vector(x, y);
 
     # standard magnitude of this vector
@@ -63,4 +64,11 @@ class Vector():
         x = v1.x - v2.x;
         y = v1.y - v2.y;
         return math.sqrt(x*x + y*y);
+
+    # distance between two given vectors
+    def midPoint(v1, v2):
+        x = (v1.x + v2.x) / 2;
+        y = (v1.y + v2.y) / 2;
+        return Vector(x, y);
+
 
