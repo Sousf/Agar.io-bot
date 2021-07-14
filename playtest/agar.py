@@ -19,7 +19,7 @@ DEFAULT_AGAR_VELOCITY = Vector(0, 0)
 
 # some parameters for controlling stat changes
 BASE_SPEED = 500
-SPLIT_SPEED = 800
+SPLIT_SPEED = 1500
 MAX_SPEED = 600
 BASE_SIZE_LOSS_RATE = 0.01 # lose a 100th of your size per second
 DEFAULT_ID = 0 # not working (need increment to increment the global variable inside initialization)
@@ -125,10 +125,13 @@ class Agar():
 
     # update the size lost per frame
     def update_size(self, time_interval : float = 0) -> float:
-        self.size = self.size - (self.size * self.base_size_loss_rate * time_interval)
+        self.size = max(MIN_AGAR_SIZE, self.size - (self.size * self.base_size_loss_rate * time_interval));
         # overrides the split buffer :(
-        # if (self.size > k_minSplitThreshold):
-        #    self.canSplit
+        if (self.delayed_split == None):
+            if (self.size < 2 * MIN_AGAR_SIZE):
+               self.can_split = False
+            else:
+                self.can_split = True
         return self.size
 
     # check that the agar does not go out of bounds
@@ -233,10 +236,12 @@ class Agar():
 
     def enable_merge(self):
         self.can_merge = True
+        self.delayed_merge = None;
         return
 
     def enable_split(self):
         self.can_split = True
+        self.delayed_split = None
         return
 
     def disable(self) -> None:
@@ -265,11 +270,12 @@ class Agar():
         if (type(id) == str):
             str_id = str(id);
         else:
-            str_id = self.get_type() + str(id)
+            str_id = self.type + str(id)
         return str_id
 
     # should probably make this an enum
-    def get_type(self):
+    @property
+    def type(self):
         return "base"
    
 class Player(Agar):
@@ -319,8 +325,15 @@ class Player(Agar):
                       can_split = False, 
                       can_merge = False)
 
+    # override the coloring of this agar to distinguish it
+    def convert_size_to_color(self):
+        size_ratio = min((self.size) / (MAX_AGAR_SIZE), 0.95)
+        color = '#%02x%02x%02x' % (int(size_ratio * 128 + 127), 0, int(size_ratio * 128 + 127))
+        return color
+
     # should probably make this an enum 
-    def get_type(self):
+    @property
+    def type(self):
         return "player"
 
 class DumbBot(Agar):
@@ -352,9 +365,16 @@ class DumbBot(Agar):
                        think_interval = self.think_interval, 
                        can_split = False, 
                        can_merge = False)
+
+    # override the coloring of this agar to distinguish it
+    def convert_size_to_color(self):
+        size_ratio = min((self.size) / (MAX_AGAR_SIZE), 0.95)
+        color = '#%02x%02x%02x' % (int(size_ratio * 64 + 192), int(size_ratio * 207 + 48), 0)
+        return color
     
-    # should probably make this an enum         
-    def get_type(self):
+    # should probably make this an enum 
+    @property        
+    def type(self):
         return "dumbbot"
 
 class Blob(Agar):
@@ -401,6 +421,7 @@ class Blob(Agar):
         return self
 
     # should probably make this an enum
-    def get_type(self):
+    @property
+    def type(self):
         return "blob"
 
