@@ -47,10 +47,9 @@ class Vector():
         return Vector(self.x / scalar, self.y / scalar)
 
     # scales this vector by the scalar
-    def __imul__(self, scalar : float = 1):
-        self.x = self.x * scalar, 
-        self.y = self.y * scalar
-        return self
+    @property
+    def as_tuple(self):
+        return (self.x, self.y);
 
     # generates a random direction, normalized to the unit circle
     def random_normalized_vector():

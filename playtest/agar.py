@@ -43,7 +43,8 @@ class Agar():
     Base speed is required to figure out how to scale slowness with size
     Think controls whether it can act (if false, the agar won't be able to do anything)
     """
-    def __init__(self, simulation, id = DEFAULT_ID,  
+    def __init__(self, simulation, id = DEFAULT_ID,
+                 is_parent = True,
                  size : float = MIN_AGAR_SIZE, 
                  position : Vector = DEFAULT_AGAR_POSITION, 
                  velocity : Vector = DEFAULT_AGAR_VELOCITY, 
@@ -63,6 +64,7 @@ class Agar():
         self.id = self.convert_to_id(id)
         
         # basic parameters
+        self.is_parent = is_parent;
         self.size = size
         self.position = position
         self.delta_position = Vector()
@@ -187,6 +189,7 @@ class Agar():
     def clone(self):
         return Agar(self.simulation, 
                     id = self.id, 
+                    is_parent = False,
                     size = self.size, 
                     position = self.position, 
                     velocity = self.velocity, 
@@ -216,7 +219,7 @@ class Agar():
         # essentially the same as eating but
         # gain all the size instead of just a portion
         # and snap to the mid point
-        if (agar.can_merge == False or self.can_merge == False): return # can't merge until it's buffer is over
+        if (agar.can_merge == False or self.can_merge == False or self.is_parent == False): return # can't merge until it's buffer is over
         Debug.agar(self.id + " merges  back, gaining {0:.2f} size".format(agar.size))
         self.size = self.size + agar.size
         # self.position = Vector.mid_point(self.position, agar.position) # doesn't look pretty
@@ -306,7 +309,8 @@ class Player(Agar):
     # reconstructs the agar object
     def clone(self):
         return Player(self.simulation, 
-                      id = self.id, 
+                      id = self.id,
+                      is_parent = False,
                       size = self.size, 
                       position = self.position, 
                       velocity = self.velocity, 
@@ -340,6 +344,7 @@ class DumbBot(Agar):
     def clone(self):
         return DumbBot(self.simulation, 
                        id = self.id, 
+                       is_parent = False,
                        size = self.size, 
                        position = self.position, 
                        velocity = self.velocity, 
@@ -372,7 +377,17 @@ class Blob(Agar):
         self.think = False
 
         # initialize the rest of the agar
-        Agar.__init__(self, simulation, id, size, position, Vector(), 0, 0, False, 1000, rect = rect)
+        Agar.__init__(self, simulation, 
+                      id = id, 
+                      is_parent = True, 
+                      size = size, 
+                      position = position, 
+                      velocity = Vector(), 
+                      base_speed = 0, 
+                      base_size_loss_rate = 0, 
+                      think = False, 
+                      think_interval = 1000, 
+                      rect = rect)
         return None
 
     # override the coloring of this agar to distinguish it

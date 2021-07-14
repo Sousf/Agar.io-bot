@@ -6,7 +6,7 @@ init(autoreset=True)
 LOG_TAG : str = "[Log]: "; DEBUG_LOG : bool = False
 WARNING_TAG : str = "[Warning]: "; DEBUG_WARNING : bool = True
 MENU_TAG : str = "[Menu]: "; DEBUG_MENU : bool = True
-SIMULATION_TAG : str = "[Simulation]: "; DEBUG_SIMULATION : bool = False
+SIMULATION_TAG : str = "[Simulation]: "; DEBUG_SIMULATION : bool = True; DEBUG_SIMULATION_UPDATE = False;
 AGAR_TAG : str = "[Agar]: "; DEBUG_AGAR : bool = True
 
 @dataclass
@@ -29,6 +29,11 @@ class Debug():
 
     def simulation(message : str, fore = Fore.YELLOW, back = Back.BLACK) -> None:
         if (DEBUG_SIMULATION == False): return None
+        print(fore + back + SIMULATION_TAG + message);
+        return
+
+    def simulation_update(message : str, fore = Fore.YELLOW, back = Back.BLACK) -> None:
+        if (DEBUG_SIMULATION_UPDATE == False): return None
         print(fore + back + SIMULATION_TAG + message);
         return
 

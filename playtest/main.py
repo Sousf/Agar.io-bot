@@ -2,9 +2,7 @@
 import tkinter as gui
 
 """ LOCAL MODULES """
-from simulation import DumbSimulation
-from simulation import PlayerSimulation
-from simulation import PlayerAndBotSimulation
+from simulation import Simulation
 from debug import Debug
 
 class Menu():
@@ -35,17 +33,17 @@ class Menu():
 
     # runs a simulation with ~20 'dumb' agar bots
     def dumb_bots(self) -> None:
-        self.sim = DumbSimulation()
+        self.sim = Simulation(caption = "Dumb Bot Simulation", player = False)
         return None
 
     # runs a player controlled agar simulation
     def player(self) -> None:
-        self.sim = PlayerSimulation(num_agars = 1)
+        self.sim = Simulation(caption = "Player Simulation", player = True, num_bots = 0)
         return None 
 
     # runs a player controlled agar simulation with a few 'dumb' bots
     def player_with_bots(self) -> None:
-        self.sim = PlayerAndBotSimulation()
+        self.sim = Simulation(caption = "Player Simulation", player = True)
         return None 
 
 def __main__():
