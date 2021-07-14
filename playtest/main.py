@@ -1,13 +1,17 @@
-### LIBRARIES ###
+""" LIBRARIES """
 import tkinter as gui
 
-### LOCAL MODULES ###
+""" LOCAL MODULES """
 from simulation import DumbSimulation
 from simulation import PlayerSimulation
 from simulation import PlayerAndBotSimulation
+from debug import Debug
 
 class Menu():
     def __init__(self):
+
+        Debug.menu("Initialized")
+
         self.menu_screen = self.create_menu()
         self.menu_screen.mainloop()
         return
@@ -36,7 +40,7 @@ class Menu():
 
     # runs a player controlled agar simulation
     def player(self) -> None:
-        self.sim = PlayerSimulation()
+        self.sim = PlayerSimulation(num_agars = 1)
         return None 
 
     # runs a player controlled agar simulation with a few 'dumb' bots

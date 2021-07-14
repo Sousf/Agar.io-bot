@@ -1,34 +1,37 @@
-### LIBRARIES ###
+""" LIBRARIES """
 import math
 import random
 import tkinter as gui
 import pygame as game
 from threading import Timer
 
-### LOCAL MODULES ###
+""" LOCAL MODULES """
 from agar import Agar
 from agar import Player
 from agar import DumbBot
 from agar import Blob
 from vectors import Vector
 from grid import Grid
+from debug import Debug
 
-### MAGIC VARIABLES ###
+""" MAGIC VARIABLES """
 # default values for simulation (if not specified on initialization)
-DEFAULT_NUM_AGARS = 50
-DEFAULT_NUM_BLOBS = 100
+DEFAULT_NUM_AGARS = 15
+DEFAULT_NUM_BLOBS = 50
 DEFAULT_BLOB_SPAWN_RATE = 1
 DEFAULT_FRAME_RATE = 1/60
 DEFAULT_RUN_TIME = 15
+# we'll probably want to distinguish between arena boundaries and window boundaries eventually
 DEFAULT_WINDOW_HEIGHT = 1080
 DEFAULT_WINDOW_WIDTH = 1920
 
-# The base simulation
-# Requires the number of agars, blobs, blob spawn rate, and the window construction params
-# Runs for the duration of the run time (note, the run time is calculated on the agar's physics 
-# (i.e. it matches the timing that agar's update at so that the simulation completes, 
-# regardless of if this matches real time values)
+""" BASE SIMULATOR """
 class Simulation():
+    """
+    Runs a simulation for the duration of the run time (note, the run time is calculated on the agar's physics 
+    (i.e. it matches the timing that agar's update at so that the simulation completes, 
+    regardless of if this matches real time values)
+    """
     def __init__(self, num_agars : int = DEFAULT_NUM_AGARS, 
                  num_blobs : int = DEFAULT_NUM_BLOBS, 
                  blob_spawn_rate : float = DEFAULT_BLOB_SPAWN_RATE,
@@ -36,6 +39,8 @@ class Simulation():
                  width : float = DEFAULT_WINDOW_WIDTH,
                  frame_rate : float = DEFAULT_FRAME_RATE, 
                  run_time : float = DEFAULT_RUN_TIME):
+
+        Debug.simulation(self.caption)
 
         # sets the base parameters
         self.num_agars = num_agars
@@ -55,15 +60,18 @@ class Simulation():
         # spawns the agars to be used in the simulation
         self.agars = []
         self.spawn_agars(self.num_agars)
+        Debug.simulation("Spawned {0} agars".format(len(self.agars)))
         
         # spawns the initial set of blobs, and then starts spawning blobs every so often
         self.blobs = []
         self.spawn_blobs(self.num_agars)
+        Debug.simulation("Spawned {0} blobs".format(len(self.blobs)))
 
         # begins the simulation
         self.start()
-        return   
-
+        return
+    
+    """ SPAWNERS """
     # spawns the agars to be used in the simulation
     def spawn_agars(self, num_agars : int = 1) -> None:
         # itterates through the number of agars to be spawned
@@ -95,8 +103,39 @@ class Simulation():
         next_blob_spawn.start()
         return None
 
+    """ CONTROLS """
+    # start the simulation
+    def start(self):
+        Debug.simulation("Starting rendering")
+        self.renderer.start()
+
+        # begins the simulation
+        next_update = Timer(2, self.update, args=None, kwargs=None)
+        next_update.start()
+        return
+
+    # shut down the simulation
+    def end(self):
+        Debug.simulation("Ending rendering")
+        for agar in self.agars:
+            agar.disable()
+        self.agars = []
+        self.is_running = False
+
+        # closes the window after a short buffer (not working)
+        close_renderer = Timer(3, self.renderer.close, args=None, kwargs=None)
+        close_renderer.start()
+        return
+
+    # the title of the simulation
+    @property
+    def caption(self) -> str:
+        return "Basic Simulation"
+
+    """ UPDATES """
     # draws a frame on the interface
     def update(self) -> None:
+        Debug.simulation("Updating simulation")
         # ends the simulation if it has updated the necessary amount of times
         self.frames += 1
         if (self.frames * self.frame_rate > self.run_time):
@@ -111,6 +150,8 @@ class Simulation():
         self.renderer.update()
         # check for collisions
         self.check_collisions()
+
+        Debug.simulation("{0} agars left, and {0} blobs".format(len(self.agars), len(self.blobs)))
 
         # start a callback to update the next frame at the desired frame rate
         next_update = Timer(self.frame_rate, self.update, args=None, kwargs=None)
@@ -132,6 +173,7 @@ class Simulation():
             agar.update_size(self.frame_rate)
         return None
 
+    """ COLLISIONS """
     # checks if agars are colliding
     # probs need to optimise this
     def check_collisions(self) -> None:
@@ -151,6 +193,7 @@ class Simulation():
                 self.blobs, blob_colliders = self.check_collision(agar, self.blobs, blob_colliders)                              
         return None
     
+    # check collisions between an agar and a list agars/colliders
     def check_collision(self, agar : Agar, agars : list, colliders : list) -> (list, list):
         # returns the indices of the all the collisions found
         collision_indices = agar.rect.collidelistall(colliders)
@@ -172,83 +215,66 @@ class Simulation():
                 return (agars, colliders)
         return (agars, colliders)
 
-
-    def get_colliders(self, agars) -> list:
+    # get the colliders from a list of agars
+    def get_colliders(self, agars : list) -> list:
         colliders = []
         for agar in agars:
             if (agar.rect != None):
                 colliders.append(agar.rect)
         return colliders
 
-    # start the simulation
-    def start(self):
-        self.renderer.start()
- 
-        # begins the simulation
-        next_update = Timer(2, self.update, args=None, kwargs=None)
-        next_update.start()
-        return
-
-    # shut down the simulation
-    def end(self):
-        for agar in self.agars:
-            agar.think = False
-        self.agars = []
-        self.is_running = False
-
-        # closes the window after a short buffer (not working)
-        close_renderer = Timer(3, self.renderer.close, args=None, kwargs=None)
-        close_renderer.start()
-        return
-
-    def get_caption(self) -> str:
-        return ""
-
-
-
-# Runs a simulation with ~20 'dumb' agar bots
-# Extends the base simulation
 class DumbSimulation(Simulation):
+    """ Runs a simulation with ~20 'dumb' agar bots """
+
+    # spawns a dumb bot
     def spawn_agars(self, num_agars : int = 1) -> list:
         for i in range(num_agars):
-            spawnPos = Vector.random_vector_within_bounds((0, self.renderer.dimensions[0]), (0, self.renderer.dimensions[1]))
-            agar = DumbBot(self, id = i, position = spawnPos, velocity = Vector(), think = True)
+            spawn_pos = Vector.random_vector_within_bounds((0, self.renderer.dimensions[0]), (0, self.renderer.dimensions[1]))
+            agar = DumbBot(self, id = i, position = spawn_pos, velocity = Vector(), think = True)
             self.agars.append(agar)
         return None
- 
-    def get_caption(self) -> str:
+
+    # the title of the simulation 
+    @property
+    def caption(self) -> str:
         return "Dumb Bots Simulation"
 
-
-# Runs a player controlled agar simulation
-# Extends the base simulation
 class PlayerSimulation(Simulation):
+    """ Runs a player controlled agar simulation """
+
+    # spawns a player
     def spawn_agars(self, numAgars : int = 1) -> list:
-        spawnPos = Vector(self.renderer.dimensions[0] / 2, self.renderer.dimensions[1] / 2)
-        agar = Player(self, id = 0, position = spawnPos, velocity = Vector(), think = True, think_interval = self.frame_rate)
+        spawn_pos = Vector(self.renderer.dimensions[0] / 2, self.renderer.dimensions[1] / 2)
+        agar = Player(self, id = 0, position = spawn_pos, velocity = Vector(), think = True, think_interval = self.frame_rate)
         self.renderer.set_focus(agar)
         self.agars.append(agar)
         return None
 
-    def get_caption(self) -> str:
+    # the title of the simulation 
+    @property
+    def caption(self) -> str:
         return "Player Simulation"
 
-# Runs a player controlled agar simulation with a few 'dumb' bots
-# Extends the base simulation
 class PlayerAndBotSimulation(Simulation):
+    """ Runs a player controlled agar simulation with a few 'dumb' bots """
+
+    # spawns a player and a buncha bots
     def spawn_agars(self, numAgars : int = 1) -> list:
-        spawnPos = Vector(self.renderer.dimensions[0] / 2, self.renderer.dimensions[1] / 2)
-        agar = Player(self, id = 0, size = 200, position = spawnPos, velocity = Vector(), think = True, think_interval = self.frame_rate)
+        spawn_pos = Vector(self.renderer.dimensions[0] / 2, self.renderer.dimensions[1] / 2)
+        agar = Player(self, id = 0, size = 200, position = spawn_pos, velocity = Vector(), think = True, think_interval = self.frame_rate)
         self.agars.append(agar)
         for i in range(1, numAgars + 1):
-            spawnPos = Vector.random_vector_within_bounds((0, self.renderer.dimensions[0]), (0, self.renderer.dimensions[1]))
-            agar = DumbBot(self, id = i, position = spawnPos, velocity = Vector(), think = True)
+            spawn_pos = Vector.random_vector_within_bounds((0, self.renderer.dimensions[0]), (0, self.renderer.dimensions[1]))
+            agar = DumbBot(self, id = i, position = spawn_pos, velocity = Vector(), think = True)
             self.agars.append(agar)
         return None
 
-    def get_caption(self) -> str:
+    # the title of the simulation 
+    @property
+    def caption(self) -> str:
         return "Player and Bot Simulation"
 
+""" RENDERING """
 class Renderer():
     def __init__(self, simulation : Simulation, caption : str = "Agar IO", width : float = DEFAULT_WINDOW_WIDTH,  height : float = DEFAULT_WINDOW_HEIGHT, color : str = '#000000'):      
         
@@ -257,7 +283,7 @@ class Renderer():
         self.center = Vector(self.dimensions[0] / 2, self.dimensions[1] / 2)
         self.color = color
 
-        self.caption = self.simulation.get_caption() or caption
+        self.caption = self.simulation.caption or caption
         game.display.set_caption(self.caption)
         self.window = game.display.set_mode(self.dimensions)
         self.background = game.Surface(self.dimensions)
@@ -324,6 +350,3 @@ class Renderer():
     def get_text_object(self, text : str, color : str) -> tuple:
         text_surface = self.font.render(text, True, game.Color(color))
         return (text_surface, text_surface.get_rect())
-
-if __name__ == "__main__":
-    renderer = Renderer()

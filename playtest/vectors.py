@@ -10,31 +10,44 @@ class Vector():
         return
 
     # returns the addition of this vector and the passed vector
-    def __add__(self, v): # : Vector = Vector(0, 0)
+    def __add__(self, v):
         return Vector(self.x + v.x, self.y + v.y)
 
     # adds the passed vector to this vector
-    def __iadd__(self, v): # : Vector = Vector(0, 0)
-        self.x = self.x + v.x, 
+    def __iadd__(self, v):
+        self.x = self.x + v.x 
         self.y = self.y + v.y
         return self
 
     # returns the subtraction of this vector and the passed vector
-    def __sub__(self, v): # : Vector = Vector(0, 0)
+    def __sub__(self, v):
         return Vector(self.x - v.x, self.y - v.y)
 
     # subtracts the passed vector to this vector
-    def __isub__(self, v): # : Vector = Vector(0, 0)
-        self.x = self.x - v.x, 
+    def __isub__(self, v):
+        self.x = self.x - v.x 
         self.y = self.y - v.y
         return self
 
     # returns the scalar product of this vector and the passed scalar
-    def __mul__(self, scalar : float = 0):
+    def __mul__(self, scalar : float = 1):
         return Vector(self.x * scalar, self.y * scalar)
 
     # scales this vector by the scalar
-    def __imul__(self, scalar : float = 0):
+    def __imul__(self, scalar : float = 1):
+        self.x = self.x * scalar, 
+        self.y = self.y * scalar
+        return self
+
+    # returns the scalar division of this vector and the passed scalar
+    def __truediv__(self, scalar : float = 1):
+        if (scalar == 0):
+            raise ValueError("Cannot divide by 0");
+            return self;
+        return Vector(self.x / scalar, self.y / scalar)
+
+    # scales this vector by the scalar
+    def __imul__(self, scalar : float = 1):
         self.x = self.x * scalar, 
         self.y = self.y * scalar
         return self
@@ -72,7 +85,7 @@ class Vector():
         return math.sqrt(x*x + y*y)
 
     # distance between two given vectors
-    def midPoint(self, v1, v2 = None):
+    def mid_point(self, v1, v2 = None):
         if (v2 == None): v2 = self
         x = (v1.x + v2.x) / 2
         y = (v1.y + v2.y) / 2
