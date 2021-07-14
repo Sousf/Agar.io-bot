@@ -1,53 +1,53 @@
 ### LIBRARIES ###
-import tkinter as gui;
+import tkinter as gui
 
 ### LOCAL MODULES ###
-from simulation import DumbSimulation;
-from simulation import PlayerSimulation;
-from simulation import PlayerAndBotSimulation;
+from simulation import DumbSimulation
+from simulation import PlayerSimulation
+from simulation import PlayerAndBotSimulation
 
 class Menu():
     def __init__(self):
-        self.menuScreen = self.createMenu();
-        self.menuScreen.mainloop();
-        return;
+        self.menu_screen = self.create_menu()
+        self.menu_screen.mainloop()
+        return
 
     # constructs the window
-    def createMenu(self) -> gui.Tk:
+    def create_menu(self) -> gui.Tk:
         # initialize the window
-        menu = gui.Tk();
+        menu = gui.Tk()
 
         # constructs the buttons
-        self.dumbBotButton = gui.Button(menu, text ="Dumb Bots", command = self.dumbBots);
-        self.playerBotButton = gui.Button(menu, text ="Player", command = self.player);
-        self.playerVersusBotButton = gui.Button(menu, text ="Player and Bots", command = self.playerWithBots);
+        self.dumb_bot_button = gui.Button(menu, text ="Dumb Bots", command = self.dumb_bots)
+        self.player_bot_button = gui.Button(menu, text ="Player", command = self.player)
+        self.player_versus_bots_button = gui.Button(menu, text ="Player and Bots", command = self.player_with_bots)
 
         # organizes the buttons
-        self.dumbBotButton.pack(side = gui.LEFT);
-        self.playerBotButton.pack(side = gui.LEFT);
-        self.playerVersusBotButton.pack(side = gui.LEFT);
+        self.dumb_bot_button.pack(side = gui.LEFT)
+        self.player_bot_button.pack(side = gui.LEFT)
+        self.player_versus_bots_button.pack(side = gui.LEFT)
 
-        return menu;
+        return menu
 
     # runs a simulation with ~20 'dumb' agar bots
-    def dumbBots(self) -> None:
-        self.sim = DumbSimulation();
-        return None;
+    def dumb_bots(self) -> None:
+        self.sim = DumbSimulation()
+        return None
 
     # runs a player controlled agar simulation
     def player(self) -> None:
-        self.sim = PlayerSimulation();
-        return None; 
+        self.sim = PlayerSimulation()
+        return None 
 
     # runs a player controlled agar simulation with a few 'dumb' bots
-    def playerWithBots(self) -> None:
-        self.sim = PlayerAndBotSimulation();
-        return None; 
+    def player_with_bots(self) -> None:
+        self.sim = PlayerAndBotSimulation()
+        return None 
 
 def __main__():
     # launches a menu
-    menu = Menu();    
-    return;
+    menu = Menu()    
+    return
 
 if __name__ == "__main__":
-    __main__();
+    __main__()
