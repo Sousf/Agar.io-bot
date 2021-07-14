@@ -18,12 +18,12 @@ from debug import Debug
 # default values for simulation (if not specified on initialization)
 DEFAULT_NUM_AGARS = 15
 DEFAULT_NUM_BLOBS = 50
-DEFAULT_BLOB_SPAWN_RATE = 1
+DEFAULT_BLOB_SPAWN_RATE = 1 # blobs per second
 DEFAULT_FRAME_RATE = 1/60
 DEFAULT_RUN_TIME = 15
 # we'll probably want to distinguish between arena boundaries and window boundaries eventually
-DEFAULT_WINDOW_HEIGHT = 1080
-DEFAULT_WINDOW_WIDTH = 1920
+DEFAULT_WINDOW_HEIGHT = int(1080 / 1.5)
+DEFAULT_WINDOW_WIDTH = int(1920 / 2)
 
 """ BASE SIMULATOR """
 class Simulation():
@@ -50,8 +50,10 @@ class Simulation():
         self.num_bots = num_bots
         self.num_blobs = num_blobs
         self.blob_spawn_rate = blob_spawn_rate
+        self.blob_spawn_timer = 0
         self.frame_rate = frame_rate
         self.frames = 0
+        self.frame_callbacks = {}
         self.run_time = run_time
         self.is_running = True
 
@@ -84,10 +86,10 @@ class Simulation():
     # spawns the player to be used in the simulation
     def spawn_player(self) -> None:
         spawn_pos = Vector(self.renderer.dimensions[0] / 2, self.renderer.dimensions[1] / 2)
-        player = Player(self, id = 0, position = spawn_pos, velocity = Vector(), think = True, think_interval = self.frame_rate)
+        player = Player(self, id = 0, position = spawn_pos, velocity = Vector(), can_think = True)
         self.renderer.set_focus(player)
         self.agars.append(player)   
-        return None 
+        return 
 
     # spawns the agars to be used in the simulation
     def spawn_bots(self, num_bots : int = 1) -> None:
@@ -96,10 +98,10 @@ class Simulation():
             # picks out a position to spawn the agar at
             spawn_pos = Vector.random_vector_within_bounds((0, self.renderer.dimensions[0]), (0, self.renderer.dimensions[1]))
             # constructs the agar object
-            bot = DumbBot(self, id = i, position = spawn_pos, velocity = Vector(), think = True)
+            bot = DumbBot(self, id = i, position = spawn_pos, velocity = Vector(), can_think = True)
             # appends it to the list of agars in the simulation
             self.agars.append(bot)     
-        return None 
+        return 
 
     # spawns the blobs used in the simulation, defaults to one blob
     def spawn_blobs(self, num_blobs : int = 1) -> None:
@@ -115,10 +117,10 @@ class Simulation():
             # appends it to the list of bobs in the simulation
             self.blobs.append(blob)
 
-        # starts a call back for a blob to be spawned at regular intervals
-        next_blob_spawn = Timer(self.blob_spawn_rate, self.spawn_blobs, args=None, kwargs=None)
-        next_blob_spawn.start()
-        return None
+        # create the timer for the next blob to spawn
+        # within the simulation thread
+        self.create_timer(time_interval = (1 / self.blob_spawn_rate), method = self.spawn_blobs)
+        return   
 
     """ CONTROLS """
     # start the simulation
@@ -153,6 +155,16 @@ class Simulation():
             self.end()
             return
 
+        # check for any running timers
+        if (self.frames in self.frame_callbacks):
+            for method in self.frame_callbacks[self.frames]:
+                Debug.simulation("Callback to " + method.__name__)
+                method()
+
+        # yes, most of these can be done within
+        # a single loop
+        # check for changes
+        self.update_thinkers()
         # set the positions
         self.update_positions()
         # set the sizes
@@ -167,7 +179,13 @@ class Simulation():
         # start a callback to update the next frame at the desired frame rate
         next_update = Timer(self.frame_rate, self.update, args=None, kwargs=None)
         next_update.start()
-        return None
+        return
+
+    # hello
+    def update_thinkers(self) -> None:
+        for agar in self.agars:
+            agar.update_think()
+        return
 
     # set the agar positions
     def update_positions(self) -> None:
@@ -176,13 +194,22 @@ class Simulation():
             agar.update_position(self.frame_rate)
             # check that it is within bounds
             agar.check_within_bounds(self.renderer.dimensions)
-        return None
+        return
 
     # set the sizes
     def update_sizes(self) -> None:
         for agar in self.agars:
             agar.update_size(self.frame_rate)
-        return None
+        return
+
+    def create_timer(self, time_interval : float = 0, method = None) -> bool:
+        if (method == None): return False
+        Debug.simulation("Added a timer to call " + method.__name__)
+        frames_left = self.convert_time_to_frames(time_interval)
+        if (self.frames + frames_left not in self.frame_callbacks):
+            self.frame_callbacks[self.frames + frames_left] = []
+        self.frame_callbacks[self.frames + frames_left].append(method)
+        return True
 
     """ COLLISIONS """
     # checks if agars are colliding
@@ -202,7 +229,7 @@ class Simulation():
             if (agar.is_eaten == False):
                 self.agars, agar_colliders = self.check_collision(agar, self.agars, agar_colliders)
                 self.blobs, blob_colliders = self.check_collision(agar, self.blobs, blob_colliders)                              
-        return None
+        return
     
     # check collisions between an agar and a list agars/colliders
     def check_collision(self, agar : Agar, agars : list, colliders : list) -> (list, list):
@@ -233,6 +260,10 @@ class Simulation():
             if (agar.rect != None):
                 colliders.append(agar.rect)
         return colliders
+
+    """ CONVERSIONS """
+    def convert_time_to_frames(self, time_interval : float = 0) -> int:
+        return int(math.ceil(time_interval / self.frame_rate))
 
 """ RENDERING """
 class Renderer():
@@ -272,7 +303,7 @@ class Renderer():
             origin = (self.focus.position * -1) + self.center
         for event in game.event.get():
              if event.type == game.QUIT:
-                 self.close()
+                 self.simulation.end()
         self.window.blit(self.background, (0, 0))
         for agar in self.simulation.agars:
             agar.rect = self.render_agar(agar, origin)

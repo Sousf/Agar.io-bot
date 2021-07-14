@@ -23,7 +23,6 @@ SPLIT_SPEED = 1500
 MAX_SPEED = 600
 BASE_SIZE_LOSS_RATE = 0.01 # lose a 100th of your size per second
 DEFAULT_ID = 0 # not working (need increment to increment the global variable inside initialization)
-DEFAULT_THINK_INTERVAL = 1
 
 # default blob parameters (used if not specified at initialisation)
 MIN_BLOB_SIZE = 6
@@ -50,8 +49,7 @@ class Agar():
                  velocity : Vector = DEFAULT_AGAR_VELOCITY, 
                  base_speed : float = BASE_SPEED, 
                  base_size_loss_rate : float = BASE_SIZE_LOSS_RATE,
-                 think : bool = True, 
-                 think_interval : float = DEFAULT_THINK_INTERVAL,
+                 can_think : bool = True, 
                  can_split : bool = True, 
                  can_merge : bool = True,
                  rect : game.Rect = None
@@ -76,34 +74,24 @@ class Agar():
         # stores the subquadrant that the agar is located in for optimization purposes
         # not used currently, but will be!
         self.curr_sub_grid = None
+
+        # ------------------
+        self.can_think = can_think
         self.can_split = can_split
         self.can_merge = can_merge
         self.is_eaten = False
 
-        self.delayed_think = None
-        self.delayed_merge = None
-        self.delayed_split = None
-
-        # start the thinker
-        self.think_interval = think_interval
-        self.start_thinker(think)
+        self.delayed_think = False
+        self.delayed_merge = False
+        self.delayed_split = False
 
         return
 
     """ THINKER """
-    # starts the thinker, or stops it
-    def start_thinker(self, think : bool) -> None:
-        # set the state of thinking
-        self.think = think
-        # launch the thinkers if necessary
-        if (self.think): 
-            self.on_think()
-        return
-    
     # the actions to decide every time the agar thinks
-    def on_think(self) -> None:
+    def update_think(self) -> None:
         # shut down the thinker 
-        if (self.think == False): return 
+        if (self.can_think == False): return 
 
         # update the velocity (i.e choose a direction)
         self.update_velocity()
@@ -111,9 +99,6 @@ class Agar():
         # decide whether to split
         self.decide_to_split()
 
-        # start a callback for the next think to occur after an interval
-        next_think = Timer(self.think_interval, self.on_think, args=None, kwargs=None)
-        next_think.start()
         return
 
     """ PASSIVE ACTIONS (called by simulation) """
@@ -127,8 +112,8 @@ class Agar():
     def update_size(self, time_interval : float = 0) -> float:
         self.size = max(MIN_AGAR_SIZE, self.size - (self.size * self.base_size_loss_rate * time_interval));
         # overrides the split buffer :(
-        if (self.delayed_split == None):
-            if (self.size < 2 * MIN_AGAR_SIZE):
+        if (self.delayed_split == False):
+            if (self.size < 2 * MIN_AGAR_SIZE or self.is_parent == False):
                self.can_split = False
             else:
                 self.can_split = True
@@ -170,19 +155,16 @@ class Agar():
         self.can_split = False
 
         # delay control over the split
-        agar.delayed_think = Timer(SPLIT_CHILD_THINKER_DELAY, agar.kick_start_thinker, args=None, kwargs=None)
+        # want to move these to an in frame thing instead of seperate threads
+        agar.delayed_think = self.simulation.create_timer(time_interval = SPLIT_CHILD_THINKER_DELAY, method = agar.enable_think)
         # delay the abilitiy for the child agar to merge back
-        agar.delayed_merge = Timer(BASE_MERGE_DELAY, agar.enable_merge, args=None, kwargs=None)
+        agar.delayed_merge = self.simulation.create_timer(time_interval = BASE_MERGE_DELAY, method = agar.enable_merge)
         # delay the ability of the parent agar to split? not sure if this is necessary if there is a size cap
-        self.delayed_split = Timer(DEFAULT_SPLIT_DELAY, self.enable_split, args=None, kwargs=None)
-
-        agar.delayed_think.start()
-        agar.delayed_merge.start()
-        self.delayed_split.start()
+        self.delayed_split = self.simulation.create_timer(time_interval = DEFAULT_SPLIT_DELAY, method = self.enable_split)
 
         # appends it to the list of agars in the simulation (not workin)
         # i'd also like to not have to point to the simulation in the agars :(
-        agar.rect = self.simulation.renderer.render_agar(agar)
+        # agar.rect = self.simulation.renderer.render_agar(agar)
         self.simulation.agars.append(agar)     
         return
 
@@ -196,7 +178,7 @@ class Agar():
                     size = self.size, 
                     position = self.position, 
                     velocity = self.velocity, 
-                    think = False, 
+                    can_think = False, 
                     can_split = False, 
                     can_merge = False)
 
@@ -230,28 +212,26 @@ class Agar():
         return
 
     """ SWITCHES """
-    def kick_start_thinker(self):
-        self.start_thinker(True)
+    def enable_think(self):
+        self.can_think = True
+        self.delayed_think = False
         return
 
     def enable_merge(self):
         self.can_merge = True
-        self.delayed_merge = None;
+        self.delayed_merge = False;
         return
 
     def enable_split(self):
         self.can_split = True
-        self.delayed_split = None
+        self.delayed_split = False
         return
 
     def disable(self) -> None:
-        self.think = False
+        self.can_think = False
         self.is_eaten = True
         del self.rect
-        if (self.delayed_think != None): self.delayed_think.cancel()
-        if (self.delayed_merge != None): self.delayed_merge.cancel()
-        if (self.delayed_split != None): self.delayed_split.cancel()
-        return None
+        return
 
 
     """ CONVERSIONS """
@@ -302,15 +282,16 @@ class Player(Agar):
             self.velocity = Vector()
         else:
             self.velocity = direction.normalize() * self.convert_size_to_speed()
-        return None
+        return
 
     # split if the keyboard is pressed
-    def decide_to_split(self):
+    def decide_to_split(self) -> None:
         pressed_keys = game.key.get_pressed()
         for key_constant, pressed in enumerate(pressed_keys): 
             if pressed:
                 self.split()
-        return
+                return True
+        return False
 
     # reconstructs the agar object
     def clone(self):
@@ -320,8 +301,7 @@ class Player(Agar):
                       size = self.size, 
                       position = self.position, 
                       velocity = self.velocity, 
-                      think = False, 
-                      think_interval = self.think_interval, 
+                      can_think = False, 
                       can_split = False, 
                       can_merge = False)
 
@@ -340,18 +320,20 @@ class DumbBot(Agar):
     """ A 'Dumb' Agar bot that randomly picks a direction to move in """
 
     # randomly select a direction to move in
-    def update_velocity(self):
+    def update_velocity(self) -> None:
         # when they split, both agars need to be moving towards a certain point
         # the agars that have the same parent need to be able to communicate with each other (?)
         # right now the child agars move independently of the parent which is incorrect
-        self.velocity = Vector.random_normalized_vector() * self.convert_size_to_speed()
+        if (random.random() > 0.95):
+            self.velocity = Vector.random_normalized_vector() * self.convert_size_to_speed()
         return
 
     # randomly decide to split
-    def decide_to_split(self):
+    def decide_to_split(self) -> bool:
         if (random.random() > 0.95):
             self.split()
-        return
+            return True
+        return False
 
     # reconstructs the agar object
     def clone(self):
@@ -361,8 +343,7 @@ class DumbBot(Agar):
                        size = self.size, 
                        position = self.position, 
                        velocity = self.velocity, 
-                       think = False, 
-                       think_interval = self.think_interval, 
+                       can_think = False, 
                        can_split = False, 
                        can_merge = False)
 
@@ -394,7 +375,7 @@ class Blob(Agar):
         size = random.random() * (max_size - min_size) + min_size
 
         # make sure this isn't thinking (otherwise it would be very heavy)
-        self.think = False
+        self.can_think = False
 
         # initialize the rest of the agar
         Agar.__init__(self, simulation, 
@@ -405,10 +386,11 @@ class Blob(Agar):
                       velocity = Vector(), 
                       base_speed = 0, 
                       base_size_loss_rate = 0, 
-                      think = False, 
-                      think_interval = 1000, 
+                      can_think = False, 
+                      can_merge = False,
+                      can_split = False,
                       rect = rect)
-        return None
+        return
 
     # override the coloring of this agar to distinguish it
     def convert_size_to_color(self):
