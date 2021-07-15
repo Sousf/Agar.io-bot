@@ -1,13 +1,14 @@
 ### LIBRARIES ###
 import random
 import math
+from dataclasses import dataclass
 
 # Standard vector stuff, with a few useful methods for this particular project
+@dataclass
 class Vector():
-    def __init__(self, x : float = 0, y : float = 0):
-        self.x = x
-        self.y = y
-        return
+
+    x : float = 0
+    y : float = 0
 
     # returns the addition of this vector and the passed vector
     def __add__(self, v):

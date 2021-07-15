@@ -13,6 +13,7 @@ from agar import Blob
 from vectors import Vector
 from grid import Grid
 from debug import Debug
+from renderer import Renderer
 
 """ MAGIC VARIABLES """
 # default values for simulation (if not specified on initialization)
@@ -62,7 +63,7 @@ class Simulation():
 
         Debug.simulation("Running " + self.caption + " for {0} seconds at {1:.2f} frames per second".format(self.run_time, (1 / self.frame_rate)))
         # constructs the interface
-        self.renderer = Renderer(self)
+        self.renderer = Renderer(self, width = width, height = height)
 
         # spawn the player if necessary
         self.agars = []
@@ -86,7 +87,7 @@ class Simulation():
     # spawns the player to be used in the simulation
     def spawn_player(self) -> None:
         spawn_pos = Vector(self.renderer.dimensions[0] / 2, self.renderer.dimensions[1] / 2)
-        player = Player(self, id = 0, position = spawn_pos, velocity = Vector(), can_think = True)
+        player = Player(self, int_id = 0, position = spawn_pos, velocity = Vector(), can_think = True)
         self.renderer.set_focus(player)
         self.agars.append(player)   
         return 
@@ -98,7 +99,7 @@ class Simulation():
             # picks out a position to spawn the agar at
             spawn_pos = Vector.random_vector_within_bounds((0, self.renderer.dimensions[0]), (0, self.renderer.dimensions[1]))
             # constructs the agar object
-            bot = DumbBot(self, id = i, position = spawn_pos, velocity = Vector(), can_think = True)
+            bot = DumbBot(self, int_id = i, position = spawn_pos, velocity = Vector(), can_think = True)
             # appends it to the list of agars in the simulation
             self.agars.append(bot)     
         return 
@@ -113,7 +114,7 @@ class Simulation():
             # picks out a position to spawn the agar at
             spawn_pos = Vector.random_vector_within_bounds((0, self.renderer.dimensions[0]), (0, self.renderer.dimensions[1]))
             # constructs the blob object
-            blob = Blob(self, id = i, position = spawn_pos)
+            blob = Blob(self, int_id = i, position = spawn_pos)
             # appends it to the list of bobs in the simulation
             self.blobs.append(blob)
 
@@ -264,80 +265,3 @@ class Simulation():
     """ CONVERSIONS """
     def convert_time_to_frames(self, time_interval : float = 0) -> int:
         return int(math.ceil(time_interval / self.frame_rate))
-
-""" RENDERING """
-class Renderer():
-    def __init__(self, simulation : Simulation, caption : str = "Agar IO", width : float = DEFAULT_WINDOW_WIDTH,  height : float = DEFAULT_WINDOW_HEIGHT, color : str = '#000000'):      
-        
-        self.simulation = simulation
-        self.dimensions = (width, height)
-        self.center = Vector(self.dimensions[0] / 2, self.dimensions[1] / 2)
-        self.color = color
-
-        self.caption = self.simulation.caption or caption
-        game.display.set_caption(self.caption)
-        self.window = game.display.set_mode(self.dimensions)
-        self.background = game.Surface(self.dimensions)
-        self.background.fill(game.Color(self.color))
-
-        self.focus = None
-        return
-
-    def start(self):
-        game.init()
-        self.font = game.font.Font('freesansbold.ttf', 15)
-
-        self.open = True
-        for agar in self.simulation.agars:
-            agar.rect = self.render_agar(agar)
-        for blob in self.simulation.blobs:
-            blob.rect = self.render_agar(blob)
-        game.display.update()
-        return
-
-    def update(self):
-        if (self.open == False): return
-        if (self.focus == None):
-            origin = Vector()
-        else:
-            origin = (self.focus.position * -1) + self.center
-        for event in game.event.get():
-             if event.type == game.QUIT:
-                 self.simulation.end()
-        self.window.blit(self.background, (0, 0))
-        for agar in self.simulation.agars:
-            agar.rect = self.render_agar(agar, origin)
-             # change this to display whatever info we want
-             # e.g. agar's id, size, number of eaten things, speed, current position etc
-            self.add_text(agar, str(agar.id))
-        for blob in self.simulation.blobs:
-            blob.rect = self.render_agar(blob, origin)
-        game.display.update()
-        return
-
-    def close(self) -> None:
-        game.display.quit()
-        game.quit()
-        self.open = False
-        return None
-
-    def set_focus(self, agar : Agar = None) -> None:
-        self.focus = agar
-        return None
-
-    # draw a new agar
-    def render_agar(self, agar : Agar, origin : Vector = Vector()) -> game.Rect:
-        pos = agar.position + origin
-        rad = agar.size
-        color = game.Color(agar.convert_size_to_color())
-        return game.draw.circle(self.window, color, (pos.x, pos.y), rad)
-
-    def add_text(self, agar : Agar, text : str) -> None:
-        text_surface, text_rect  = self.get_text_object(text, game.Color("#ffffff"))
-        text_rect.center=agar.rect.center
-        self.window.blit(text_surface, text_rect)
-        return None
-
-    def get_text_object(self, text : str, color : str) -> tuple:
-        text_surface = self.font.render(text, True, game.Color(color))
-        return (text_surface, text_surface.get_rect())

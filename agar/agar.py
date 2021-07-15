@@ -5,6 +5,7 @@ import random
 import tkinter as gui
 from threading import Timer
 import pygame as game
+from dataclasses import dataclass
 
 """ LOCAL MODULES """
 from vectors import Vector
@@ -42,7 +43,8 @@ class Agar():
     Base speed is required to figure out how to scale slowness with size
     Think controls whether it can act (if false, the agar won't be able to do anything)
     """
-    def __init__(self, simulation, id = DEFAULT_ID,
+    def __init__(self, simulation, 
+                 int_id = DEFAULT_ID,
                  is_parent = True,
                  size : float = MIN_AGAR_SIZE, 
                  position : Vector = DEFAULT_AGAR_POSITION, 
@@ -59,7 +61,7 @@ class Agar():
         self.simulation = simulation
 
         # set the id of the agar
-        self.id = self.convert_to_id(id)
+        self.int_id = int_id
         
         # basic parameters
         self.is_parent = is_parent;
@@ -84,7 +86,6 @@ class Agar():
         self.delayed_think = False
         self.delayed_merge = False
         self.delayed_split = False
-
         return
 
     """ THINKER """
@@ -173,7 +174,7 @@ class Agar():
     # can be done in a neater way
     def clone(self):
         return Agar(self.simulation, 
-                    id = self.id, 
+                    int_id = self.int_id, 
                     is_parent = False,
                     size = self.size, 
                     position = self.position, 
@@ -236,27 +237,22 @@ class Agar():
 
     """ CONVERSIONS """
     # conversion between the size of the agar and its speed
-    def convert_size_to_speed(self) -> float:
+    @property
+    def speed(self) -> float:
         return min(MAX_SPEED, self.base_speed / math.sqrt(self.size / MIN_AGAR_SIZE))
 
     # conversion between the size of the agar and its color
-    def convert_size_to_color(self) -> str:
+    @property
+    def color(self) -> str:
         size_ratio = min((self.size) / (MAX_AGAR_SIZE), 0.95)
-        color = '#%02x%02x%02x' % (int(size_ratio * 64 + 192), int(size_ratio * 192 + 64), 0)
-        return color
+        _color = '#%02x%02x%02x' % (int(size_ratio * 64 + 192), int(size_ratio * 192 + 64), 0)
+        return _color
 
     # conversion that outputs the id
-    def convert_to_id(self, id = None) -> str:
-        if (type(id) == str):
-            str_id = str(id);
-        else:
-            str_id = self.type + str(id)
-        return str_id
-
-    # should probably make this an enum
     @property
-    def type(self):
-        return "base"
+    def id(self) -> str:
+        str_id = type(self).__name__ + str(self.int_id)
+        return str_id
    
 class Player(Agar):
     """ A player controlled agar """
@@ -281,7 +277,7 @@ class Player(Agar):
         if (direction.magnitude() <= 20):
             self.velocity = Vector()
         else:
-            self.velocity = direction.normalize() * self.convert_size_to_speed()
+            self.velocity = direction.normalize() * self.speed
         return
 
     # split if the keyboard is pressed
@@ -296,7 +292,7 @@ class Player(Agar):
     # reconstructs the agar object
     def clone(self):
         return Player(self.simulation, 
-                      id = self.id,
+                      int_id = self.int_id,
                       is_parent = False,
                       size = self.size, 
                       position = self.position, 
@@ -306,15 +302,11 @@ class Player(Agar):
                       can_merge = False)
 
     # override the coloring of this agar to distinguish it
-    def convert_size_to_color(self):
-        size_ratio = min((self.size) / (MAX_AGAR_SIZE), 0.95)
-        color = '#%02x%02x%02x' % (int(size_ratio * 128 + 127), 0, int(size_ratio * 128 + 127))
-        return color
-
-    # should probably make this an enum 
     @property
-    def type(self):
-        return "player"
+    def color(self) -> str:
+        size_ratio = min((self.size) / (MAX_AGAR_SIZE), 0.95)
+        _color = '#%02x%02x%02x' % (int(size_ratio * 128 + 127), 0, int(size_ratio * 128 + 127))
+        return _color
 
 class DumbBot(Agar):
     """ A 'Dumb' Agar bot that randomly picks a direction to move in """
@@ -325,7 +317,7 @@ class DumbBot(Agar):
         # the agars that have the same parent need to be able to communicate with each other (?)
         # right now the child agars move independently of the parent which is incorrect
         if (random.random() > 0.95):
-            self.velocity = Vector.random_normalized_vector() * self.convert_size_to_speed()
+            self.velocity = Vector.random_normalized_vector() * self.speed
         return
 
     # randomly decide to split
@@ -338,7 +330,7 @@ class DumbBot(Agar):
     # reconstructs the agar object
     def clone(self):
         return DumbBot(self.simulation, 
-                       id = self.id, 
+                       int_id = self.int_id, 
                        is_parent = False,
                        size = self.size, 
                        position = self.position, 
@@ -348,21 +340,17 @@ class DumbBot(Agar):
                        can_merge = False)
 
     # override the coloring of this agar to distinguish it
-    def convert_size_to_color(self):
+    @property
+    def color(self):
         size_ratio = min((self.size) / (MAX_AGAR_SIZE), 0.95)
-        color = '#%02x%02x%02x' % (int(size_ratio * 64 + 192), int(size_ratio * 207 + 48), 0)
-        return color
-    
-    # should probably make this an enum 
-    @property        
-    def type(self):
-        return "dumbbot"
+        _color = '#%02x%02x%02x' % (int(size_ratio * 64 + 192), int(size_ratio * 207 + 48), 0)
+        return _color
 
 class Blob(Agar):
     """ The 'Blob' Agars scattered around the map that stay still and exist only to be eaten, with randomly vared size """
 
     def __init__(self, simulation, 
-                 id : int = DEFAULT_ID, 
+                 int_id : int = DEFAULT_ID, 
                  min_size : float = MIN_BLOB_SIZE, 
                  max_size : float = MAX_BLOB_SIZE,
                  position : Vector = DEFAULT_AGAR_POSITION, 
@@ -379,7 +367,7 @@ class Blob(Agar):
 
         # initialize the rest of the agar
         Agar.__init__(self, simulation, 
-                      id = id, 
+                      int_id = int_id, 
                       is_parent = True, 
                       size = size, 
                       position = position, 
@@ -393,17 +381,13 @@ class Blob(Agar):
         return
 
     # override the coloring of this agar to distinguish it
-    def convert_size_to_color(self):
+    @property
+    def color(self) -> str:
         size_ratio = (self.size - self.min_size) / (self.max_size - self.min_size)
-        color = '#%02x%02x%02x' % (int(size_ratio * 192 + 64), int(size_ratio * 64 + 192), 0)
-        return color
+        _color = '#%02x%02x%02x' % (int(size_ratio * 192 + 64), int(size_ratio * 64 + 192), 0)
+        return _color
 
     # blobs can't clone themselves
     def clone(self):
         return self
-
-    # should probably make this an enum
-    @property
-    def type(self):
-        return "blob"
 
