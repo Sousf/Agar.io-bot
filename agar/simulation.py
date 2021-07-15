@@ -147,7 +147,7 @@ class Simulation():
         # fail safe for force quitting in between simulation end and renderer closing
         if (self.delayed_end != None and self.delayed_end.is_alive()): self.delayed_end.cancel()
         # cancels the next update if the simulation has not completed
-        # if (self.next_update != None and self.next_update.is_alive()): self.next_update.cancel()
+        if (self.next_update != None and self.next_update.is_alive()): self.next_update.cancel()
 
         # closes the window after a short buffer (not working)
         self.renderer.close()
