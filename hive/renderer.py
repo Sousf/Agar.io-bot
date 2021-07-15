@@ -1,11 +1,8 @@
 import pygame as game
-from agar import Agar
-from vectors import Vector
-from debug import Debug
 
 """ RENDERING """
 class Renderer():
-    def __init__(self, simulation, width : float,  height : float, caption : str = "Agar IO", color : str = '#000000'):      
+    def __init__(self, simulation : Simulation, caption : str = DEFAULT_CAPTION, width : float = DEFAULT_WINDOW_WIDTH,  height : float = DEFAULT_WINDOW_HEIGHT, color : str = '#000000'):      
         
         self.simulation = simulation
         self.dimensions = (width, height)
@@ -24,13 +21,16 @@ class Renderer():
     def start(self):
         game.init()
         self.font = game.font.Font('freesansbold.ttf', 15)
+
         self.open = True
         self.render_frame()
+        game.display.update()
         return
 
-    def update(self) -> None:
+    def update(self):
         if (self.open == False): return
         self.render_frame()
+        game.display.update()
         return
 
     def close(self) -> None:
@@ -39,44 +39,32 @@ class Renderer():
         self.open = False
         return None
 
-    def set_focus(self, agar : Agar = None) -> None:
-        self.focus = agar
-        return None
 
-    def render_frame(self) -> bool:
-        if (self.focus == None):
-            origin = Vector()
-        else:
-            origin = (self.focus.position * -1) + self.center
+    def render_frame(self) -> None:      
         for event in game.event.get():
              if event.type == game.QUIT:
                  self.simulation.end()
-                 return False
         self.window.blit(self.background, (0, 0))
-        for agar in self.simulation.agars:
-            agar.rect = self.render_agar(agar, origin)
-             # change this to display whatever info we want
-             # e.g. agar's id, size, number of eaten things, speed, current position etc
-            self.add_text(agar, str(agar.id))
-        for blob in self.simulation.blobs:
-            blob.rect = self.render_agar(blob, origin)
-        game.display.update()
-        return True
+        for piece in self.simulation.hive:
+            piece.rect = self.render_piece(piece, origin)
+            # change this to display whatever info we want
+            # e.g. agar's id, size, number of eaten things, speed, current position etc
+            self.add_text(piece, str(piece.id))
+        return
 
     # draw a new agar
-    def render_agar(self, agar : Agar, origin : Vector = Vector()) -> game.Rect:
-        pos = agar.position + origin
-        rad = agar.size
-        color = game.Color(agar.color)
+    def render_piece(self, piece : Piece) -> game.Rect:
+        pos = self.hive.convert_cell_to_position(piece.cell)
+        rad = self.hive.cell_size
+        color = piece.Color(piece.color)
         return game.draw.circle(self.window, color, (pos.x, pos.y), rad)
 
-    def add_text(self, agar : Agar, text : str) -> None:
+    def add_text(self, piece : Piece, text : str) -> None:
         text_surface, text_rect  = self.get_text_object(text, game.Color("#ffffff"))
-        text_rect.center=agar.rect.center
+        text_rect.center=piece.rect.center
         self.window.blit(text_surface, text_rect)
         return None
 
     def get_text_object(self, text : str, color : str) -> tuple:
         text_surface = self.font.render(text, True, game.Color(color))
         return (text_surface, text_surface.get_rect())
-

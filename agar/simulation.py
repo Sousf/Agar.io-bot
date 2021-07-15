@@ -57,6 +57,7 @@ class Simulation():
         self.frame_callbacks = {}
         self.run_time = run_time
         self.is_running = True
+        self.next_update = None
 
         # used for collisions
         # self.grid = Grid(0, width, height, 10)
@@ -81,6 +82,7 @@ class Simulation():
 
         # begins the simulation
         self.start()
+        self.delayed_end = None
         return
     
     """ SPAWNERS """
@@ -130,8 +132,8 @@ class Simulation():
         self.renderer.start()
 
         # begins the simulation
-        next_update = Timer(2, self.update, args=None, kwargs=None)
-        next_update.start()
+        self.next_update = Timer(2, self.update, args=None, kwargs=None)
+        self.next_update.start()
         return
 
     # shut down the simulation
@@ -142,18 +144,25 @@ class Simulation():
         self.agars = []
         self.is_running = False
 
+        # fail safe for force quitting in between simulation end and renderer closing
+        if (self.delayed_end != None and self.delayed_end.is_alive()): self.delayed_end.cancel()
+        # cancels the next update if the simulation has not completed
+        # if (self.next_update != None and self.next_update.is_alive()): self.next_update.cancel()
+
         # closes the window after a short buffer (not working)
-        close_renderer = Timer(3, self.renderer.close, args=None, kwargs=None)
-        close_renderer.start()
+        self.renderer.close()
         return
 
     """ UPDATES """
     # draws a frame on the interface
     def update(self) -> None:
-        # ends the simulation if it has updated the necessary amount of times
         self.frames += 1
-        if (self.frames * self.frame_rate > self.run_time):
-            self.end()
+        # ends the simulation if something external has caused it to stop running
+        if (self.is_running == False): return
+        # or ends the simulation if it has run its course
+        elif (self.frames * self.frame_rate > self.run_time):
+            self.delayed_end = Timer(3, self.end, args=None, kwargs=None)
+            self.delayed_end.start()
             return
 
         # check for any running timers
@@ -178,8 +187,8 @@ class Simulation():
         Debug.simulation_update("{0} agars left, and {0} blobs".format(len(self.agars), len(self.blobs)))
 
         # start a callback to update the next frame at the desired frame rate
-        next_update = Timer(self.frame_rate, self.update, args=None, kwargs=None)
-        next_update.start()
+        self.next_update = Timer(self.frame_rate, self.update, args=None, kwargs=None)
+        self.next_update.start()
         return
 
     # hello

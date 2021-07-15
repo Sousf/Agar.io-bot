@@ -32,7 +32,7 @@ MAX_BLOB_SIZE = 15
 # time controls for the game, note that these time controls 
 # will have to be  modified into a frame time base to be able to simulate at
 # faster the real time speeds
-SPLIT_CHILD_THINKER_DELAY = 0.75
+SPLIT_CHILD_THINKER_DELAY = 0.2
 BASE_MERGE_DELAY = 0.75
 DEFAULT_SPLIT_DELAY = 0.3
 
@@ -215,6 +215,7 @@ class Agar():
     """ SWITCHES """
     def enable_think(self):
         self.can_think = True
+        self.velocity = self.velocity.normalize() * self.speed
         self.delayed_think = False
         return
 
@@ -253,7 +254,7 @@ class Agar():
     def id(self) -> str:
         str_id = type(self).__name__ + str(self.int_id)
         return str_id
-   
+
 class Player(Agar):
     """ A player controlled agar """
 

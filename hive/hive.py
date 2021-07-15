@@ -3,44 +3,7 @@ from cell import Cell
 from dataclasses import dataclass
 import pygame as game
 
-DEFAULT_ID = 0;
-
-class Player():
-    def __init__(self, simulation,
-                 int_id : int = DEFAULT_ID,
-                 starting_pieces : list = [],
-                 is_turn : bool = False
-                 ) -> None:
-
-        self.int_id = int_id
-        self.is_turn = is_turn
-
-        self.pieces_in_hand = []
-        self.add_to_hand(starting_pieces)
-        Debug.player_hand(self.pieces_in_hand)
-        self.pieces_on_board = []
-
-        return
-
-    def on_turn(self) -> None:
-        Debug.player(self.id + " starting turn")
-        return
-
-    def place_piece(self, piece, x, y):
-        self.simulation.hive.add_piece(piece, x, y)
-        return
-
-    def add_to_hand(self, hand : list = None) -> list:
-        for piece_class, num in hand:
-            for i in range(num):
-                piece = piece_class(player = self, int_id = i)
-                self.pieces_in_hand.append(piece)
-        return
-
-    # conversion that outputs the id
-    @property
-    def id(self):
-        return type(self).__name__ + str(self.int_id)
+DEFAULT_ID = 0
 
 @dataclass
 class Hive():
@@ -55,11 +18,15 @@ class Hive():
 @dataclass
 class Piece():
     # initializion
-    player : Player = None
-    int_id : int = 0
+    int_id : int = DEFAULT_ID
     cell : Cell = Cell()
     _color : tuple = (0, 0, 0)
     rect : game.Rect = None
+    player = None
+
+    def assign_to_player(self, player):
+        self.player = player
+        return
 
     @property
     def color(self) -> str:

@@ -14,3 +14,6 @@ class Cell():
         self.y += c.y
         return self
 
+    def is_connected():
+        return;
+
