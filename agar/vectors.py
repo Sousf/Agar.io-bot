@@ -78,8 +78,7 @@ class Vector():
         return math.sqrt(self.x * self.x + self.y * self.y)
 
     # distance between two given vectors
-    def distance(self, v1, v2 = None):
-        if (v2 == None): v2 = self
+    def distance(v1, v2):
         x = v1.x - v2.x
         y = v1.y - v2.y
         return math.sqrt(x*x + y*y)
@@ -90,5 +89,26 @@ class Vector():
         x = (v1.x + v2.x) / 2
         y = (v1.y + v2.y) / 2
         return Vector(x, y)
+
+    # angle in radians
+    def rotate(self, angle : float = 0): 
+        angle = angle / 180 * math.pi
+        x_rotated = round(math.cos(angle) * self.x - math.sin(angle) * self.y, 3)
+        y_rotated = round(math.sin(angle) * self.x + math.cos(angle) * self.y, 3)
+        return Vector(x_rotated, y_rotated)
+
+    def regular_polygon(self, points : int = 0, length : float = 1) -> list:
+        vectors = []
+        for i in range(points):
+            angle = 360 * i / points
+            vectors.append(self + Vector(length, 0).rotate(angle))
+        return vectors
+
+    def regular_polygon_as_tuples(self, points : int = 0, length : float = 1) -> list:
+        _points = []
+        for i in range(points):
+            angle = 360 * i / points
+            _points.append((self + Vector(length, 0).rotate(angle)).as_tuple)
+        return _points   
 
 

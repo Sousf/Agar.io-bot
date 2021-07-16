@@ -91,7 +91,7 @@ class Simulation():
     # spawns the player to be used in the simulation
     def spawn_player(self) -> None:
         spawn_pos = Vector(self.map_dimensions[0] / 2, self.map_dimensions[1] / 2)
-        player = Player(self, int_id = 0, position = spawn_pos, velocity = Vector(), can_think = True)
+        player = Player(self, int_id = 0, position = spawn_pos, can_think = True)
         self.renderer.set_focus(player)
         self.agars.append(player)   
         return 
@@ -103,7 +103,7 @@ class Simulation():
             # picks out a position to spawn the agar at
             spawn_pos = Vector.random_vector_within_bounds((0, self.map_dimensions[0]), (0, self.map_dimensions[1]))
             # constructs the agar object
-            bot = DumbBot(self, int_id = i, position = spawn_pos, velocity = Vector(), can_think = True)
+            bot = DumbBot(self, int_id = i, position = spawn_pos, can_think = True)
             # appends it to the list of agars in the simulation
             self.agars.append(bot)     
         return 
@@ -175,12 +175,12 @@ class Simulation():
 
         # yes, most of these can be done within
         # a single loop
-        # check for changes
-        self.update_thinkers()
         # set the positions
-        self.update_positions()
+        self.update_motions()
         # set the sizes
         self.update_sizes()
+        # check for changes
+        self.update_thinkers()
         # update the window
         self.renderer.update()
         # check for collisions
@@ -200,8 +200,9 @@ class Simulation():
         return
 
     # set the agar positions
-    def update_positions(self) -> None:
+    def update_motions(self) -> None:
         for agar in self.agars:
+            agar.update_velocity(self.frame_rate)
             # update its position based on its velocity
             agar.update_position(self.frame_rate)
             # check that it is within bounds
@@ -247,21 +248,22 @@ class Simulation():
     def check_collision(self, agar : Agar, agars : list, colliders : list) -> (list, list):
         # returns the indices of the all the collisions found
         collision_indices = agar.rect.collidelistall(colliders)
+
+        # runs through all the collisions
         for index in collision_indices:
-            # check if the collision results in the agar eating
             agar.on_collision(agars[index])
-            # if the agar has been eaten
             if (agars[index].is_eaten):
-                # remove the agar collider that was eaten
-                # from both lists
+                # remove the agar collider that was eaten from both lists if it was eaten
                 del agars[index]
                 del colliders[index]
-                # we're editing the active collider list here
-                # this is going to make the list of collision indices useless
-                # as they point to locations within this active collider list
-                # breaking here to avoid the issue
-                # but this means only one collision that results in eating can be detected per frame
-                # im sure there is a more elegant solution
+                """
+                we're editing the active collider list here
+                this is going to make the list of collision indices useless
+                as they point to locations within this active collider list
+                breaking here to avoid the issue
+                but this means only one collision that results in eating can be detected per frame
+                im sure there is a more elegant solution
+                """
                 return (agars, colliders)
         return (agars, colliders)
 

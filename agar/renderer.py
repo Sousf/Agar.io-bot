@@ -2,21 +2,26 @@ import pygame as game
 from agar import Agar
 from vectors import Vector
 from debug import Debug
+from color import Shade
 
 """ RENDERING """
 class Renderer():
-    def __init__(self, simulation, width : float,  height : float, caption : str = "Agar IO", color : str = '#000000'):      
+    def __init__(self, simulation, width : float,  height : float, caption : str = "Agar IO", color_gradient : tuple = None):      
         
         self.simulation = simulation
         self.dimensions = (width, height)
         self.center = Vector(self.dimensions[0] / 2, self.dimensions[1] / 2)
-        self.color = color
+        if (color_gradient == None):
+            shade = Shade()
+            color_gradient = (shade.lightest_shade, shade.middle_shade, shade.darkest_shade)
+        self.color_gradient = color_gradient
 
         self.caption = self.simulation.caption or caption
         game.display.set_caption(self.caption)
         self.window = game.display.set_mode(self.dimensions)
         self.background = game.Surface(self.dimensions)
-        self.background.fill(game.Color(self.color))
+        background_color = Shade.as_hex(self.color_gradient[0])
+        self.background.fill(game.Color(background_color))
 
         self.focus = None
         return
@@ -53,13 +58,14 @@ class Renderer():
                  self.simulation.end()
                  return False
         self.window.blit(self.background, (0, 0))
+        # draw the blobs first
+        for blob in self.simulation.blobs:
+            blob.rect = self.render_agar(blob, origin)
         for agar in self.simulation.agars:
             agar.rect = self.render_agar(agar, origin)
              # change this to display whatever info we want
              # e.g. agar's id, size, number of eaten things, speed, current position etc
             self.add_text(agar, str(agar.id))
-        for blob in self.simulation.blobs:
-            blob.rect = self.render_agar(blob, origin)
         game.display.update()
         return True
 
@@ -67,11 +73,20 @@ class Renderer():
     def render_agar(self, agar : Agar, origin : Vector = Vector()) -> game.Rect:
         pos = agar.position + origin
         rad = agar.size
-        color = game.Color(agar.color)
-        return game.draw.circle(self.window, color, (pos.x, pos.y), rad)
+        inner_color = game.Color(agar.color_gradient[0])
+        color = game.Color(agar.color_gradient[1])
+        outline_color = game.Color(agar.color_gradient[2])
+        # outline
+        outline = game.draw.circle(surface = self.window, color = outline_color, center = (pos.x, pos.y), radius = rad + 3, width = 3)
+        # main_circle
+        main_circle = game.draw.circle(surface = self.window, color = color, center = (pos.x, pos.y), radius = rad)
+        # inner circle
+        inner_circle = game.draw.circle(surface = self.window, color = inner_color, center = (pos.x, pos.y), radius = rad * 0.5)
+        return main_circle
 
     def add_text(self, agar : Agar, text : str) -> None:
-        text_surface, text_rect  = self.get_text_object(text, game.Color("#ffffff"))
+        color = Shade.as_hex(self.color_gradient[2])
+        text_surface, text_rect  = self.get_text_object(text, game.Color(color))
         text_rect.center=agar.rect.center
         self.window.blit(text_surface, text_rect)
         return None

@@ -1,10 +1,30 @@
 import random
+import math
 
 class Shade():
-    SHADES = []
+    LAVENDER = (238, 238, 255)
+    SPACY = (65, 74, 76)
+    SMOKY = (16, 12, 8)
+    SHADES = [LAVENDER, SPACY, SMOKY]
     def random_shade(self):
         index = random.randint(0, len(self.SHADES)-1)
         return self.SHADES[index]
+
+    def as_hex(shade : tuple = (0, 0, 0)):
+        return '#%02x%02x%02x' % shade
+
+    @property
+    def lightest_shade(self):
+        return self.SHADES[0]
+
+    @property
+    def middle_shade(self):
+        mid_point = math.floor(len(self.SHADES) / 2)
+        return self.SHADES[mid_point]
+
+    @property
+    def darkest_shade(self):
+        return self.SHADES[-1]
 
 class Red(Shade):
     # reds
