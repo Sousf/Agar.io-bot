@@ -18,11 +18,12 @@ from renderer import Renderer
 """ MAGIC VARIABLES """
 # default values for simulation (if not specified on initialization)
 DEFAULT_NUM_AGARS = 15
-DEFAULT_NUM_BLOBS = 50
-DEFAULT_BLOB_SPAWN_RATE = 1 # blobs per second
+DEFAULT_NUM_BLOBS = 500
+DEFAULT_BLOB_SPAWN_RATE = 0.1 # blobs per second
 DEFAULT_FRAME_RATE = 1/60
-DEFAULT_RUN_TIME = 15
-# we'll probably want to distinguish between arena boundaries and window boundaries eventually
+DEFAULT_RUN_TIME = -1
+DEFAULT_MAP_HEIGHT = int(4000)
+DEFAULT_MAP_WIDTH = int(4000)
 DEFAULT_WINDOW_HEIGHT = int(1080 / 1.5)
 DEFAULT_WINDOW_WIDTH = int(1920 / 2)
 
@@ -38,8 +39,8 @@ class Simulation():
                  num_bots : int = DEFAULT_NUM_AGARS, 
                  num_blobs : int = DEFAULT_NUM_BLOBS, 
                  blob_spawn_rate : float = DEFAULT_BLOB_SPAWN_RATE,
-                 height : float = DEFAULT_WINDOW_HEIGHT, 
-                 width : float = DEFAULT_WINDOW_WIDTH,
+                 map_dimensions : tuple = (DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT),
+                 window_dimensions : tuple = (DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT),
                  frame_rate : float = DEFAULT_FRAME_RATE, 
                  run_time : float = DEFAULT_RUN_TIME
                  ):
@@ -52,6 +53,7 @@ class Simulation():
         self.num_blobs = num_blobs
         self.blob_spawn_rate = blob_spawn_rate
         self.blob_spawn_timer = 0
+        self.map_dimensions = map_dimensions
         self.frame_rate = frame_rate
         self.frames = 0
         self.frame_callbacks = {}
@@ -64,7 +66,7 @@ class Simulation():
 
         Debug.simulation("Running " + self.caption + " for {0} seconds at {1:.2f} frames per second".format(self.run_time, (1 / self.frame_rate)))
         # constructs the interface
-        self.renderer = Renderer(self, width = width, height = height)
+        self.renderer = Renderer(self, width = window_dimensions[0], height = window_dimensions[1])
 
         # spawn the player if necessary
         self.agars = []
@@ -88,7 +90,7 @@ class Simulation():
     """ SPAWNERS """
     # spawns the player to be used in the simulation
     def spawn_player(self) -> None:
-        spawn_pos = Vector(self.renderer.dimensions[0] / 2, self.renderer.dimensions[1] / 2)
+        spawn_pos = Vector(self.map_dimensions[0] / 2, self.map_dimensions[1] / 2)
         player = Player(self, int_id = 0, position = spawn_pos, velocity = Vector(), can_think = True)
         self.renderer.set_focus(player)
         self.agars.append(player)   
@@ -99,7 +101,7 @@ class Simulation():
         # itterates through the number of agars to be spawned
         for i in range(num_bots):
             # picks out a position to spawn the agar at
-            spawn_pos = Vector.random_vector_within_bounds((0, self.renderer.dimensions[0]), (0, self.renderer.dimensions[1]))
+            spawn_pos = Vector.random_vector_within_bounds((0, self.map_dimensions[0]), (0, self.map_dimensions[1]))
             # constructs the agar object
             bot = DumbBot(self, int_id = i, position = spawn_pos, velocity = Vector(), can_think = True)
             # appends it to the list of agars in the simulation
@@ -114,7 +116,7 @@ class Simulation():
         # itterates through the number of blobs to be spawned
         for i in range(num_blobs):
             # picks out a position to spawn the agar at
-            spawn_pos = Vector.random_vector_within_bounds((0, self.renderer.dimensions[0]), (0, self.renderer.dimensions[1]))
+            spawn_pos = Vector.random_vector_within_bounds((0, self.map_dimensions[0]), (0, self.map_dimensions[1]))
             # constructs the blob object
             blob = Blob(self, int_id = i, position = spawn_pos)
             # appends it to the list of bobs in the simulation
@@ -160,7 +162,7 @@ class Simulation():
         # ends the simulation if something external has caused it to stop running
         if (self.is_running == False): return
         # or ends the simulation if it has run its course
-        elif (self.frames * self.frame_rate > self.run_time):
+        elif (self.run_time!= -1 and self.frames * self.frame_rate > self.run_time):
             self.delayed_end = Timer(3, self.end, args=None, kwargs=None)
             self.delayed_end.start()
             return
@@ -203,7 +205,7 @@ class Simulation():
             # update its position based on its velocity
             agar.update_position(self.frame_rate)
             # check that it is within bounds
-            agar.check_within_bounds(self.renderer.dimensions)
+            agar.check_within_bounds(self.map_dimensions)
         return
 
     # set the sizes

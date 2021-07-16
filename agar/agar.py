@@ -27,13 +27,15 @@ DEFAULT_ID = 0 # not working (need increment to increment the global variable in
 
 # default blob parameters (used if not specified at initialisation)
 MIN_BLOB_SIZE = 6
-MAX_BLOB_SIZE = 15
+MAX_BLOB_SIZE = 8
+BLOB_COLORS = [(255, 0, 0), (255)]
 
 # time controls for the game, note that these time controls 
 # will have to be  modified into a frame time base to be able to simulate at
 # faster the real time speeds
 SPLIT_CHILD_THINKER_DELAY = 0.2
-BASE_MERGE_DELAY = 0.75
+BASE_MERGE_DELAY = 10 # should be 30 for irl agar io
+MERGE_DELAY_FACTOR = 0.0233
 DEFAULT_SPLIT_DELAY = 0.3
 
 """ AGAR OBJECTS """
@@ -49,8 +51,8 @@ class Agar():
                  size : float = MIN_AGAR_SIZE, 
                  position : Vector = DEFAULT_AGAR_POSITION, 
                  velocity : Vector = DEFAULT_AGAR_VELOCITY, 
-                 base_speed : float = BASE_SPEED, 
-                 base_size_loss_rate : float = BASE_SIZE_LOSS_RATE,
+                 speed : float = BASE_SPEED, 
+                 size_loss_rate : float = BASE_SIZE_LOSS_RATE,
                  can_think : bool = True, 
                  can_split : bool = True, 
                  can_merge : bool = True,
@@ -69,8 +71,8 @@ class Agar():
         self.position = position
         self.delta_position = Vector()
         self.velocity = velocity
-        self.base_speed = base_speed
-        self.base_size_loss_rate = base_size_loss_rate
+        self._speed = speed
+        self.size_loss_rate = size_loss_rate
         self.rect = rect # the canvas its drawn on
 
         # stores the subquadrant that the agar is located in for optimization purposes
@@ -111,10 +113,10 @@ class Agar():
 
     # update the size lost per frame
     def update_size(self, time_interval : float = 0) -> float:
-        self.size = max(MIN_AGAR_SIZE, self.size - (self.size * self.base_size_loss_rate * time_interval));
+        self.size = max(MIN_AGAR_SIZE, self.size - (self.size * self.size_loss_rate * time_interval));
         # overrides the split buffer :(
         if (self.delayed_split == False):
-            if (self.size < 2 * MIN_AGAR_SIZE or self.is_parent == False):
+            if (self.size < 2 * MIN_AGAR_SIZE): # or self.is_parent == False (apparently even the children split)
                self.can_split = False
             else:
                 self.can_split = True
@@ -159,7 +161,9 @@ class Agar():
         # want to move these to an in frame thing instead of seperate threads
         agar.delayed_think = self.simulation.create_timer(time_interval = SPLIT_CHILD_THINKER_DELAY, method = agar.enable_think)
         # delay the abilitiy for the child agar to merge back
-        agar.delayed_merge = self.simulation.create_timer(time_interval = BASE_MERGE_DELAY, method = agar.enable_merge)
+        agar.delayed_merge = self.simulation.create_timer(time_interval = agar.merge_cooldown, method = agar.enable_merge)
+        # delay the ability of the child agar to split? not sure if this is necessary if there is a size cap
+        agar.delayed_split = self.simulation.create_timer(time_interval = DEFAULT_SPLIT_DELAY, method = agar.enable_split)
         # delay the ability of the parent agar to split? not sure if this is necessary if there is a size cap
         self.delayed_split = self.simulation.create_timer(time_interval = DEFAULT_SPLIT_DELAY, method = self.enable_split)
 
@@ -240,7 +244,13 @@ class Agar():
     # conversion between the size of the agar and its speed
     @property
     def speed(self) -> float:
-        return min(MAX_SPEED, self.base_speed / math.sqrt(self.size / MIN_AGAR_SIZE))
+        mass = self.size / 10
+        return min(MAX_SPEED, self._speed * mass / math.pow(mass, 1.44))
+
+    # conversion between the size of the agar and its speed
+    @property
+    def merge_cooldown(self) -> float:
+        return BASE_MERGE_DELAY + (MERGE_DELAY_FACTOR * self.size)
 
     # conversion between the size of the agar and its color
     @property
@@ -373,8 +383,8 @@ class Blob(Agar):
                       size = size, 
                       position = position, 
                       velocity = Vector(), 
-                      base_speed = 0, 
-                      base_size_loss_rate = 0, 
+                      speed = 0, 
+                      size_loss_rate = 0, 
                       can_think = False, 
                       can_merge = False,
                       can_split = False,
