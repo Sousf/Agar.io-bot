@@ -1,11 +1,8 @@
 import random
 import math
 
-class Shade():
-    LAVENDER = (238, 238, 255)
-    SPACY = (65, 74, 76)
-    SMOKY = (16, 12, 8)
-    SHADES = [LAVENDER, SPACY, SMOKY]
+class Color():
+    
     def random_shade(self):
         index = random.randint(0, len(self.SHADES)-1)
         return self.SHADES[index]
@@ -26,7 +23,14 @@ class Shade():
     def darkest_shade(self):
         return self.SHADES[-1]
 
-class Red(Shade):
+class Grey(Color):
+    # shades
+    LAVENDER = (238, 238, 255)
+    SPACY = (65, 74, 76)
+    SMOKY = (16, 12, 8)
+    SHADES = [LAVENDER, SPACY, SMOKY]
+
+class Red(Color):
     # reds
     VERMILLION = (219, 44, 4)
     TERRACOTTA = (240, 126, 101)
@@ -39,7 +43,7 @@ class Red(Shade):
               RUFOUS, 
               KOBE]
 
-class Green(Shade):
+class Green(Color):
     # greens
     MINT = (145, 249, 229)
     AQUAMARINE = (118, 247, 191)
@@ -52,7 +56,7 @@ class Green(Shade):
               MIDDLE, 
               RIFLE]
 
-class Blue(Shade):
+class Blue(Color):
     # sky
     SKY = (68, 190, 227)
     MUNSELI = (36, 139, 171)
@@ -65,7 +69,7 @@ class Blue(Shade):
               SAPPHIRE,
               MIDNIGHT]
 
-class Yellow(Shade):
+class Yellow(Color):
     # yellows
     MINDARO = (206, 240, 105)
     CRAYOLA = (203, 230, 124)
@@ -78,16 +82,13 @@ class Yellow(Shade):
               OLIVE,
               EBONY]
 
-class Color(Shade):
-    RED = Red
-    GREEN = Green
-    BLUE = Blue
-    YELLOW = Yellow
+class Palette():
+    GREY = Grey()
+    RED = Red()
+    GREEN = Green()
+    BLUE = Blue()
+    YELLOW = Yellow()
     COLORS = [RED, GREEN, BLUE, YELLOW]
-    SHADES = []
-    for color in COLORS:
-        for shade in color.SHADES:
-            SHADES.append(shade)
 
 if __name__ == "__main__":
     print(Color().random_shade())

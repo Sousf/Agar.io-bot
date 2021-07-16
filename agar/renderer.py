@@ -2,7 +2,8 @@ import pygame as game
 from agar import Agar
 from vectors import Vector
 from debug import Debug
-from color import Shade
+from color import Color
+from color import Palette
 
 """ RENDERING """
 class Renderer():
@@ -12,15 +13,15 @@ class Renderer():
         self.dimensions = (width, height)
         self.center = Vector(self.dimensions[0] / 2, self.dimensions[1] / 2)
         if (color_gradient == None):
-            shade = Shade()
-            color_gradient = (shade.lightest_shade, shade.middle_shade, shade.darkest_shade)
+            grey = Palette.GREY
+            color_gradient = (grey.lightest_shade, grey.middle_shade, grey.darkest_shade)
         self.color_gradient = color_gradient
 
         self.caption = self.simulation.caption or caption
         game.display.set_caption(self.caption)
         self.window = game.display.set_mode(self.dimensions)
         self.background = game.Surface(self.dimensions)
-        background_color = Shade.as_hex(self.color_gradient[0])
+        background_color = Color.as_hex(self.color_gradient[0])
         self.background.fill(game.Color(background_color))
 
         self.focus = None
@@ -85,7 +86,7 @@ class Renderer():
         return main_circle
 
     def add_text(self, agar : Agar, text : str) -> None:
-        color = Shade.as_hex(self.color_gradient[2])
+        color = Color.as_hex(self.color_gradient[2])
         text_surface, text_rect  = self.get_text_object(text, game.Color(color))
         text_rect.center=agar.rect.center
         self.window.blit(text_surface, text_rect)

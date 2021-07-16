@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 """ LOCAL MODULES """
 from vectors import Vector
-from color import Color
+from color import Palette
 from debug import Debug
 
 """ GLOBAL VARIABLES """
@@ -30,6 +30,7 @@ MAX_SPEED = 600
 # controls the size for agars
 MIN_AGAR_SIZE = 20
 MAX_AGAR_SIZE = 100
+SIZE_SPEED_FACTOR = 1.25 # should be 1.44?
 EAT_SIZE_THRESHOLD = 1.25
 BASE_SIZE_LOSS_RATE = 0.02 # lose a 50th of your size per second
 EJECTED_MASS_FACTOR = 0.18
@@ -60,7 +61,7 @@ class Agar():
     Base speed is required to figure out how to scale slowness with size
     Think controls whether it can act (if false, the agar won't be able to do anything)
     """
-    _color = Color()
+    _color = Palette.GREY
     def __init__(self, simulation, 
                  int_id = DEFAULT_ID,
                  size : float = MIN_AGAR_SIZE,
@@ -197,7 +198,7 @@ class Agar():
         self.can_split = False
 
         # slight delay before gaining control
-        # clone.delayed_think = self.simulation.create_timer(time_interval = SPLIT_CHILD_THINKER_DELAY, method = clone.enable_think)
+        clone.delayed_think = self.simulation.create_timer(time_interval = SPLIT_CHILD_THINKER_DELAY, method = clone.enable_think)
         
         # delay before this can merge back to the parent
         clone.delayed_merge = self.simulation.create_timer(time_interval = clone.merge_cooldown, method = clone.enable_merge)
@@ -242,10 +243,14 @@ class Agar():
                     target_point = self.target_point,
                     position = self.position,
                     speed = self._speed,
-                    can_think = True, 
+                    can_think = False, 
                     can_split = False, 
                     can_merge = False,
-                    parent = self)
+                    parent = self
+                    )
+        # get the upper most parent
+        if (self.parent != None):
+            clone.parent = self.parent
         clone.velocity = self.velocity.normalize() * SPLIT_SPEED # no acceleration on start up
         clone.size *= 0.5
         self.size *= 0.5
@@ -274,9 +279,6 @@ class Agar():
         # cannot collide with self
         if (self.can_eat == False or self == agar): 
             return
-        # need to cover up to center of the agar
-        elif (self.encompasses(agar) == False):
-            return
 
         # can always eat blobs
         if (type(agar) == Blob):
@@ -285,14 +287,17 @@ class Agar():
         elif (self.id == agar.id):
             if (self.parent == None and self.can_merge == True and agar.can_merge == True):
                 self.merge(agar)
-            elif (self.parent == None):
-                self.bounce(agar)
+            elif (self.size >= agar.size):
+                self.boundary(agar)
+            # else:
+            #   agar.boundary(self)
         # for collisions between different agars attempt to eat
         else:
             if (self.size >= EAT_SIZE_THRESHOLD * agar.size):
-                self.eat(agar)
+                if (self.encompasses(agar)):
+                    self.eat(agar)
             else:
-                self.bounce(agar)
+                self.boundary(agar)
         return
 
     # check if an agar encompasses a certain point
@@ -313,8 +318,8 @@ class Agar():
         agar.disable()
         return
 
-    def bounce(self, agar) -> None:
-        perimeter = (agar.position - self.position).normalize() * (max(self.size, agar.size) + 2)
+    def boundary(self, agar) -> None:
+        perimeter = (agar.position - self.position).normalize() * (self.size + agar.size)
         agar.position = self.position + perimeter
         return
 
@@ -393,7 +398,7 @@ class Agar():
         if (self.can_think == False):
             return self._speed
         mass = self.size / 10
-        return min(MAX_SPEED, self._speed * mass / math.pow(mass, 1.44))
+        return min(MAX_SPEED, self._speed * mass / math.pow(mass, SIZE_SPEED_FACTOR))
 
     # conversion between the size of the agar and its speed
     @property
@@ -408,7 +413,7 @@ class Agar():
 
 class Player(Agar):
     """ A player controlled agar """
-    _color = Color.BLUE()
+    _color = Palette.BLUE
 
     # update the velocity of the agar to be towards the mouse of the player
     def decide_target_point(self) -> None:
@@ -416,14 +421,14 @@ class Player(Agar):
         return
 
     # split if the keyboard is pressed
-    def decide_to_split(self) -> None:
+    def decide_to_split(self) -> bool:
         if (self.check_key(game.K_SPACE)):
             self.split()
             return True
         return False
 
     # split if the keyboard is pressed
-    def decide_to_eject(self) -> None:
+    def decide_to_eject(self) -> bool:
         if (self.check_key(game.K_w)):
             self.eject()
             return True
@@ -449,7 +454,7 @@ class Player(Agar):
 
 class DumbBot(Agar):
     """ A 'Dumb' Agar bot that randomly picks a direction to move in """
-    _color = Color.RED()
+    _color = Palette.RED
 
     # randomly select a direction to move in
     def decide_target_point(self) -> None:
@@ -477,7 +482,7 @@ class DumbBot(Agar):
 
 class Blob(Agar):
     """ The 'Blob' Agars scattered around the map that stay still and exist only to be eaten, with randomly vared size """
-    _color = Color.GREEN()
+    _color = Palette.GREEN
 
     def __init__(self, simulation, 
                  int_id : int = DEFAULT_ID,
