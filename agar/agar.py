@@ -540,7 +540,7 @@ class Blob(Agar):
         # blob size does not change
         return
 
-z# class Virus(Agar):
+# class Virus(Agar):
 
     # split itself if you're too big
     # eat mass that is ejected at it
