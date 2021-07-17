@@ -21,7 +21,7 @@ DEFAULT_NUM_AGARS = 15
 DEFAULT_NUM_BLOBS = 500
 DEFAULT_BLOB_SPAWN_RATE = 0.1 # blobs per second
 DEFAULT_FRAME_RATE = 1/60
-DEFAULT_RUN_TIME = 60
+DEFAULT_RUN_TIME = -1
 DEFAULT_MAP_HEIGHT = int(4000)
 DEFAULT_MAP_WIDTH = int(4000)
 DEFAULT_WINDOW_HEIGHT = int(1080)
@@ -179,10 +179,10 @@ class Simulation():
         self.check_collisions()
         # set the sizes
         self.update_sizes()
-        # set the positions
-        self.update_motions()
         # check for changes
         self.update_thinkers()
+        # set the positions
+        self.update_motions()
         # update the window
         self.renderer.update()
 

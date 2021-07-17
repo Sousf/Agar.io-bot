@@ -2,11 +2,11 @@ from player import Player
 from player import DumbBot
 
 from hive import Hive
-from hive import Queen
-from hive import Spider
-from hive import Beetle
-from hive import Grasshopper
-from hive import Ant
+from piece import Queen
+from piece import Spider
+from piece import Beetle
+from piece import Grasshopper
+from piece import Ant
 from debug import Debug
 from threading import Timer
 from renderer import Renderer
@@ -39,7 +39,7 @@ class Simulation():
         self.max_turns = max_turns
         self.is_running = True
 
-        self.hive = Hive(center = Vector(width / 2, height / 2))
+        self.hive = Hive(origin = Vector(width / 2, height / 2))
         self.renderer = Renderer(self, width = width, height = height)
 
         Debug.simulation("Initializing a " + self.caption + " for {0} turns, with {1} players".format(self.max_turns, number_of_players))
@@ -93,6 +93,8 @@ class Simulation():
     def end(self):
         Debug.simulation("Ending rendering")
         self.is_running = False
+
+        self.hive.hexes = []
 
         # fail safe for force quitting in between simulation end and renderer closing
         if (self.delayed_end != None and self.delayed_end.is_alive()): self.delayed_end.cancel()

@@ -19,11 +19,12 @@ DEFAULT_ID = 0
 # vectors
 DEFAULT_AGAR_POSITION = Vector(0, 0)
 DEFAULT_AGAR_VELOCITY = Vector(0, 0)
+EJECTED_AGAR_SHAKE_ANGLE = 30
 
 # controls the speed
 ACCELERATION = 2500
 BASE_SPEED = 500
-SPLIT_SPEED = 1000
+SPLIT_SPEED = 1250
 EJECT_SPEED = 1500
 MAX_SPEED = 600
 
@@ -31,7 +32,7 @@ MAX_SPEED = 600
 MIN_AGAR_SIZE = 20
 MAX_AGAR_SIZE = 100
 SIZE_SPEED_FACTOR = 1.25 # should be 1.44?
-EAT_SIZE_THRESHOLD = 1.25
+EAT_SIZE_THRESHOLD = 1.05 # should be 1.05
 BASE_SIZE_LOSS_RATE = 0.02 # lose a 50th of your size per second
 EJECTED_MASS_FACTOR = 0.18
 
@@ -142,18 +143,12 @@ class Agar():
 
     # update the velocity based on the acceleration and time passed since the last update
     def update_velocity(self, time_interval : float = 0) -> Vector:
-        target_direction = self.target_point - self.position
         # snap this for cohesion
-        if (target_direction.magnitude() < 20):
-            target_velocity = Vector()
-        else:
-            target_velocity = target_direction.normalize() * self.speed
-        # snap this for cohesion
-        if ((target_velocity - self.velocity).magnitude() < time_interval * ACCELERATION):
+        if ((self.target_velocity - self.velocity).magnitude() < time_interval * ACCELERATION):
             self.delta_velocity = Vector()
-            self.velocity = target_velocity
+            self.velocity = self.target_velocity
         else:
-            self.delta_velocity = (target_velocity - self.velocity).normalize() * time_interval * ACCELERATION
+            self.delta_velocity = (self.target_velocity - self.velocity).normalize() * time_interval * ACCELERATION
             self.velocity = self.velocity + self.delta_velocity
         return self.velocity
 
@@ -208,6 +203,7 @@ class Agar():
         self.delayed_split = self.simulation.create_timer(time_interval = DEFAULT_SPLIT_DELAY, method = self.enable_split)
 
         # appends it to the list of agars in the simulation
+        self.children.append(clone)
         self.simulation.agars.append(clone)     
         return
 
@@ -251,10 +247,10 @@ class Agar():
         # get the upper most parent
         if (self.parent != None):
             clone.parent = self.parent
-        clone.velocity = self.velocity.normalize() * SPLIT_SPEED # no acceleration on start up
+        clone.velocity = self.target_velocity.normalize() * SPLIT_SPEED # no acceleration on start up
         clone.size *= 0.5
         self.size *= 0.5
-        clone.position = self.position + (self.velocity.normalize() * (self.size + clone.size + 5))
+        clone.position = self.position + (self.target_velocity.normalize() * (self.size + clone.size + 10))
         return clone
 
     # clones the object as a blob with a fraction of the size
@@ -266,11 +262,10 @@ class Agar():
                      position =  self.position)
         clone.can_think = False
         clone.target_point = self.target_point
-        #clone._speed = SPLIT_SPEED
-        clone.velocity = self.velocity.normalize() * EJECT_SPEED
+        clone.velocity = self.target_velocity.normalize() * EJECT_SPEED
         clone.size = self.size * EJECTED_MASS_FACTOR
         self.size = self.size * (1 - EJECTED_MASS_FACTOR)
-        clone.position = self.position + (self.velocity.normalize() * (self.size + clone.size + 5))
+        clone.position = self.position + (self.target_velocity.normalize() * (self.size + clone.size + 10))
         return clone
 
     """ COLLISIONS """
@@ -282,7 +277,8 @@ class Agar():
 
         # can always eat blobs
         if (type(agar) == Blob):
-            self.eat(agar)
+            if (self.encompasses(agar)):
+                self.eat(agar)
         # for collisions between the same agar we merge
         elif (self.id == agar.id):
             if (self.parent == None and self.can_merge == True and agar.can_merge == True):
@@ -292,12 +288,12 @@ class Agar():
             # else:
             #   agar.boundary(self)
         # for collisions between different agars attempt to eat
-        else:
-            if (self.size >= EAT_SIZE_THRESHOLD * agar.size):
-                if (self.encompasses(agar)):
-                    self.eat(agar)
-            else:
-                self.boundary(agar)
+        elif (self.size >= EAT_SIZE_THRESHOLD * agar.size):
+            if (self.encompasses(agar)):
+                self.eat(agar)
+        # so that boundary is not affected when they try to eat you
+        elif (agar.size < EAT_SIZE_THRESHOLD * self.size):
+            self.boundary(agar)
         return
 
     # check if an agar encompasses a certain point
@@ -308,6 +304,15 @@ class Agar():
     def eat(self, agar) -> None:
         Debug.agar(self.id + " eats " + agar.id + ", gaining {0:.2f} size".format(agar.size / 5))
         self.size = self.size + agar.size / 2
+
+        if (len(agar.children) > 0):
+            new_parent = agar.children[0]
+            if (self.simulation.renderer.focus == agar):
+                self.simulation.renderer.focus = new_parent
+            new_parent.children = agar.children[1:]
+            for child in new_parent.children:
+                child.parent = new_parent
+
         agar.disable()
         return
 
@@ -315,6 +320,10 @@ class Agar():
     def merge(self, agar) -> None:
         Debug.agar(self.id + " merges  back, gaining {0:.2f} size".format(agar.size))
         self.size = self.size + agar.size
+
+        if (agar in self.children):
+            self.children.remove(agar)
+
         agar.disable()
         return
 
@@ -392,6 +401,16 @@ class Agar():
 
 
     """ CONVERSIONS """
+    @property
+    def target_velocity(self):
+        target_direction = self.target_point - self.position
+        # snap this for cohesion
+        if (target_direction.magnitude() < 20):
+            target_velocity = Vector()
+        else:
+            target_velocity = target_direction.normalize() * self.speed
+        return target_velocity
+
     # conversion between the size of the agar and its speed
     @property
     def speed(self) -> float:

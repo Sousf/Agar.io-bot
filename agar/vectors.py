@@ -109,6 +109,11 @@ class Vector():
         for i in range(points):
             angle = 360 * i / points
             _points.append((self + Vector(length, 0).rotate(angle)).as_tuple)
-        return _points   
+        return _points
+    
+    def shake(self, max_angle : float = 0):
+        random_angle = 2 * (random.random() - 0.5) * max_angle
+        return self.rotate(random_angle)
+
 
 

@@ -1,33 +1,37 @@
 import pygame as game
 from vectors import Vector
+from color import Color
+from color import Palette
 from debug import Debug
-from cell import Cell
-from cell import Hexagon
-from hive import Piece
+from cell import Hex
 from hive import Hive
-from hive import Queen
+from piece import Piece
 
 """ RENDERING """
 class Renderer():
-    def __init__(self, simulation, width : float,  height : float, caption : str = "Agar IO", color : str = '#000000'):      
+    def __init__(self, simulation, width : float,  height : float, caption : str = "Agar IO", color_gradient : tuple = None):      
         
         self.simulation = simulation
         self.dimensions = (width, height)
         self.center = Vector(self.dimensions[0] / 2, self.dimensions[1] / 2)
-        self.color = color
+        if (color_gradient == None):
+            grey = Palette.GREY
+            color_gradient = (grey.lightest_shade, grey.middle_shade, grey.darkest_shade)
+        self.color_gradient = color_gradient
 
         self.caption = self.simulation.caption or caption
         game.display.set_caption(self.caption)
         self.window = game.display.set_mode(self.dimensions)
         self.background = game.Surface(self.dimensions)
-        self.background.fill(game.Color(self.color))
+        # background_color = Color.as_hex(self.color_gradient[0])
+        self.background.fill(game.Color(self.color_gradient[0]))
 
         self.focus = None
         return
 
     def start(self):
         game.init()
-        self.font = game.font.Font('freesansbold.ttf', 15)
+        self.font = game.font.Font('freesansbold.ttf', 12)
         self.open = True
         self.render_frame()
         return
@@ -49,26 +53,39 @@ class Renderer():
                  self.simulation.end()
                  return
         self.window.blit(self.background, (0, 0))
-        for cell in self.simulation.hive.cells:
-            if cell.piece != None:
-                cell.rect = self.render_cell(cell)
-                self.add_text(cell, str(cell.piece.short_id))
-                for empty_adj_cell in cell.empty_adjacent_cells(self.simulation.hive):
-                     self.render_cell(empty_adj_cell)
+        for hex in self.simulation.hive.hexes:
+            hex.rect = self.render_hex(hex)
+            # self.add_text(hex, str(hex.piece.short_id))
+            for empty_hex in hex.empty_adjacent_hexes(self.simulation.hive):
+                self.render_hex(empty_hex)
         game.display.update()
         return
 
     # draw a new agar
-    def render_cell(self, cell : Cell) -> game.Rect:
+    def render_hex(self, cell : Hex) -> game.Rect:
         if (cell.piece == None): cell.piece = Piece(); # make this an empty piece
-        pos = self.simulation.hive.convert_cell_to_position(cell)
-        length = self.simulation.hive.cell_size / 2
+        pos = self.simulation.hive.convert_hex_to_position(cell)
+        length = self.simulation.hive.hex_size / 2
         color = game.Color(cell.piece.color)
-        polygon_points = pos.regular_polygon_as_tuples(6, length)
+        
+        outline_points = pos.regular_polygon_as_tuples(6, length + 3)
+        outline_color = game.Color(self.color_gradient[2])
+        outline_polygon = game.draw.polygon(self.window, outline_color, outline_points)
+
+        if (cell.piece.player != None):
+            factor = 1.5
+            player_points = pos.regular_polygon_as_tuples(6, length)
+            player_color = game.Color(cell.piece.player.color)
+            player_polygon = game.draw.polygon(self.window, player_color, player_points)
+
+        else:
+            factor = 1
+
+        polygon_points = pos.regular_polygon_as_tuples(6, length / factor)
         return game.draw.polygon(self.window, color, polygon_points)
 
-    def add_text(self, cell : Cell, text : str) -> None:
-        text_surface, text_rect  = self.get_text_object(text, game.Color("#ffffff"))
+    def add_text(self, cell : Hex, text : str) -> None:
+        text_surface, text_rect  = self.get_text_object(text, game.Color(self.color_gradient[2]))
         text_rect.center=cell.rect.center
         self.window.blit(text_surface, text_rect)
         return None
@@ -76,49 +93,5 @@ class Renderer():
     def get_text_object(self, text : str, color : str) -> tuple:
         text_surface = self.font.render(text, True, game.Color(color))
         return (text_surface, text_surface.get_rect())
-
-# ---------------- Testing ----------------- #
-def _render_frame(hive, window):
-    for cell in hive.cells:
-        if cell.piece != None:
-            _render_cell(cell, hive, window)
-            for adj_cell in cell.empty_adjacent_cells(hive):
-                _render_cell(adj_cell, hive, window)
-    return
-
-
-def _render_cell(cell, hive, window):
-    if (cell.piece == None): cell.piece = Piece();
-    pos = hive.convert_cell_to_position(cell)
-    length = hive.cell_size / 2
-    color = game.Color(cell.piece.color)
-    polygon_points = pos.regular_polygon_as_tuples(6, length)
-    return game.draw.polygon(window, color, polygon_points)
-
-if __name__ == "__main__":
-    game.init()
-    game.display.set_caption("Test")
-    dimensions = (500, 500)
-    window = game.display.set_mode(dimensions)
-    background = game.Surface(dimensions)
-    background.fill(game.Color("#ffffff"))
-    
-    cells = [Hexagon(0, 0), Hexagon(1, 0), Hexagon(1, -1), Hexagon(1, 1)]
-    """for i in range(-20, 20):
-        for j in range(0, 1):
-            cells.append(Cell(i, j));"""
-    hive = Hive(cells = cells, center = Vector(250, 250))
-    for cell in hive.cells:
-        piece = Queen()
-        cell.piece = piece
-    _render_frame(hive, window)
-    game.display.update()
-    while True:
-        for event in game.event.get():
-            if event.type == game.QUIT:
-                game.display.quit()
-                game.quit()   
-
-
 
     
