@@ -32,7 +32,7 @@ MAX_SPEED = 600
 MIN_AGAR_SIZE = 20
 MAX_AGAR_SIZE = 100
 SIZE_SPEED_FACTOR = 1.25 # should be 1.44?
-EAT_SIZE_THRESHOLD = 1.05 # should be 1.05
+EAT_SIZE_THRESHOLD = 1.05 # should be 1.25
 BASE_SIZE_LOSS_RATE = 0.02 # lose a 50th of your size per second
 EJECTED_MASS_FACTOR = 0.18
 
@@ -539,4 +539,13 @@ class Blob(Agar):
     def update_size(self, time_interval : float = 0) -> float:
         # blob size does not change
         return
+
+z# class Virus(Agar):
+
+    # split itself if you're too big
+    # eat mass that is ejected at it
+    # split blobs that hit it (if the blob that hits it is bigger)
+
+# 
+
 
