@@ -38,7 +38,7 @@ class Menu():
 
     # runs a player controlled agar simulation
     def player(self) -> None:
-        self.sim = Simulation(caption = "Player Simulation", player = True, num_bots = 0)
+        self.sim = Simulation(caption = "Player Simulation", player = True, num_bots = 0, num_viruses = 0)
         return None 
 
     # runs a player controlled agar simulation with a few 'dumb' bots

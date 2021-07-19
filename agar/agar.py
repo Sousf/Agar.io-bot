@@ -22,23 +22,34 @@ DEFAULT_AGAR_VELOCITY = Vector(0, 0)
 EJECTED_AGAR_SHAKE_ANGLE = 30
 
 # controls the speed
-ACCELERATION = 2500
-BASE_SPEED = 500
-SPLIT_SPEED = 1250
+ACCELERATION = 3000
+MAX_CURSOR_RANGE = 300
+BASE_SPEED = 750
+SPLIT_SPEED = 1500
 EJECT_SPEED = 1500
 MAX_SPEED = 600
 
 # controls the size for agars
-MIN_AGAR_SIZE = 20
-MAX_AGAR_SIZE = 100
-SIZE_SPEED_FACTOR = 1.25 # should be 1.44?
+MIN_AGAR_MASS = 20
+MAX_AGAR_MASS = 22500
+
+BASE_MASS_LOSS_RATE = 0.02 # lose a 50th of your size per second
+MASS_TO_SIZE_EXPONENT = 0.75 # realistically this should be 0.5
+MASS_SPEED_FACTOR = 1.25 # should be 1.44?
+
 EAT_SIZE_THRESHOLD = 1.05 # should be 1.25
-BASE_SIZE_LOSS_RATE = 0.02 # lose a 50th of your size per second
+EAT_MASS_GAIN_FACTOR = 1 # the percentage of mass gained when eating
+
 EJECTED_MASS_FACTOR = 0.18
+EJECTED_MASS_LOSS = 0.75 # 0.72
+
+VIRUS_BASE_MASS = 100
+VIRUS_EAT_THRESHOLD = 150 # 133 in real game
+VIRUS_POP_NUMBER = 7
 
 # controls the size for blobs
-MIN_BLOB_SIZE = 6
-MAX_BLOB_SIZE = 8
+MIN_BLOB_MASS = 1
+MAX_BLOB_MASS = 3
 BLOB_COLORS = [(255, 0, 0), (255)]
 
 # all time controls relative to a frame rate of 60
@@ -65,8 +76,8 @@ class Agar():
     _color = Palette.GREY
     def __init__(self, simulation, 
                  int_id = DEFAULT_ID,
-                 size : float = MIN_AGAR_SIZE,
-                 size_loss_rate : float = BASE_SIZE_LOSS_RATE,
+                 mass : float = MIN_AGAR_MASS,
+                 size_loss_rate : float = BASE_MASS_LOSS_RATE,
                  target_point : Vector = Vector(),
                  position : Vector = DEFAULT_AGAR_POSITION, 
                  speed : float = BASE_SPEED, 
@@ -88,7 +99,7 @@ class Agar():
         self.int_id = int_id
         
         # size
-        self.size = size
+        self.mass = mass
         self.size_loss_rate = size_loss_rate
 
         # motion  
@@ -132,13 +143,25 @@ class Agar():
         # shut down the thinker 
         if (self.can_think == False): 
             return False
+        if (self.parent != None):
+            return False
 
         # decide a direction to travel in
         self.decide_target_point()
         # decide whether to split
-        self.decide_to_split()
+        did_split = self.decide_to_split()
         # decide whether to eject
-        self.decide_to_eject()
+        did_eject = self.decide_to_eject()
+
+        #print(len(self.children))
+        for child in self.children:
+            if (child.can_think):
+                child.target_point = self.target_point
+                if (did_split):
+                    child.split()
+                if (did_eject):
+                    child.eject()
+
         return True
 
     # update the velocity based on the acceleration and time passed since the last update
@@ -150,6 +173,7 @@ class Agar():
         else:
             self.delta_velocity = (self.target_velocity - self.velocity).normalize() * time_interval * ACCELERATION
             self.velocity = self.velocity + self.delta_velocity
+        # self.velocity = self.target_velocity
         return self.velocity
 
     # update the position based on the velocity and time passed since the last update
@@ -160,11 +184,11 @@ class Agar():
 
     # update the size lost based on time passed since last update
     def update_size(self, time_interval : float = 0) -> float:
-        self.size = max(MIN_AGAR_SIZE, self.size - (self.size * self.size_loss_rate * time_interval));
+        self.mass = max(MIN_AGAR_MASS, self.mass - (self.mass * self.size_loss_rate * time_interval));
         # check whether the agar is over the splitting/ejecting threshold
         self.check_split()     
         self.check_eject()
-        return self.size
+        return self.mass
 
     """ DECISIONS """
     # update the velocity (decision dependent on the type of agar)
@@ -185,6 +209,7 @@ class Agar():
     """ ACTIONS """
     # run through the process for splitting mechanic
     def split(self) -> None:
+        self.check_split()
         if (self.can_split == False): return
         Debug.agar(self.id + " is splitting")
 
@@ -203,9 +228,40 @@ class Agar():
         self.delayed_split = self.simulation.create_timer(time_interval = DEFAULT_SPLIT_DELAY, method = self.enable_split)
 
         # appends it to the list of agars in the simulation
-        self.children.append(clone)
+        if (self.parent == None):
+            self.children.append(clone)
+        else:
+            self.parent.children.append(clone)
         self.simulation.agars.append(clone)     
         return
+
+        # run through the process for splitting mechanic
+    def no_delay_split(self):
+        self.check_split()
+        if (self.can_split == False): return None
+        Debug.agar(self.id + " is splitting")
+
+        # splits the agar
+        clone = self.no_delay_split_clone()   
+        self.can_split = False
+
+        # slight delay before gaining control
+        clone.delayed_think = self.simulation.create_timer(time_interval = SPLIT_CHILD_THINKER_DELAY, method = clone.enable_think)
+        
+        # delay before this can merge back to the parent
+        clone.delayed_merge = self.simulation.create_timer(time_interval = clone.merge_cooldown, method = clone.enable_merge)
+        
+        # delay before these can split again
+        clone.can_split = True
+        self.can_split = True
+
+        # appends it to the list of agars in the simulation
+        if (self.parent == None):
+            self.children.append(clone)
+        else:
+            self.parent.children.append(clone)
+        self.simulation.agars.append(clone)     
+        return clone
 
     def eject(self) -> None:
         if (self.can_eject == False): return
@@ -234,7 +290,7 @@ class Agar():
     def split_clone(self):
         clone = type(self)(self.simulation, 
                     int_id = self.int_id, 
-                    size = self.size,
+                    mass = self.mass,
                     color_gradient = self.color_gradient,
                     target_point = self.target_point,
                     position = self.position,
@@ -248,8 +304,31 @@ class Agar():
         if (self.parent != None):
             clone.parent = self.parent
         clone.velocity = self.target_velocity.normalize() * SPLIT_SPEED # no acceleration on start up
-        clone.size *= 0.5
-        self.size *= 0.5
+        clone.mass *= 0.5
+        self.mass *= 0.5
+        clone.position = self.position + (self.target_velocity.normalize() * (self.size + clone.size + 10))
+        return clone
+
+    # clones the object at half size
+    def no_delay_split_clone(self):
+        clone = type(self)(self.simulation, 
+                    int_id = self.int_id, 
+                    mass = self.mass,
+                    color_gradient = self.color_gradient,
+                    target_point = self.target_point,
+                    position = self.position,
+                    speed = self._speed,
+                    can_think = False, 
+                    can_split = False, 
+                    can_merge = False,
+                    parent = self
+                    )
+        # get the upper most parent
+        if (self.parent != None):
+            clone.parent = self.parent
+        clone.velocity = Vector(1, 0).shake(360).normalize() * SPLIT_SPEED # no acceleration on start up
+        clone.mass *= 0.5
+        self.mass *= 0.5
         clone.position = self.position + (self.target_velocity.normalize() * (self.size + clone.size + 10))
         return clone
 
@@ -257,14 +336,14 @@ class Agar():
     def eject_clone(self):
         clone = Blob(self.simulation, 
                      int_id = self.int_id, 
-                     min_size = self.size, max_size = self.size,
+                     min_mass = self.mass, max_mass = self.mass + 1,
                      color_gradient = self.color_gradient,
                      position =  self.position)
         clone.can_think = False
         clone.target_point = self.target_point
         clone.velocity = self.target_velocity.normalize() * EJECT_SPEED
-        clone.size = self.size * EJECTED_MASS_FACTOR
-        self.size = self.size * (1 - EJECTED_MASS_FACTOR)
+        clone.mass = self.mass * EJECTED_MASS_FACTOR
+        self.mass = self.mass * (1 - EJECTED_MASS_FACTOR) * EJECTED_MASS_LOSS
         clone.position = self.position + (self.target_velocity.normalize() * (self.size + clone.size + 10))
         return clone
 
@@ -279,47 +358,79 @@ class Agar():
         if (type(agar) == Blob):
             if (self.encompasses(agar)):
                 self.eat(agar)
+                return
+        # viruses can't do anything beyond this point (only eat blobs)
+        if (type(self) == Virus):
+            return
+        # on the other hand, if we hit a virus
+        elif (type(agar) == Virus):
+            if (self.mass > VIRUS_EAT_THRESHOLD):
+                # eat the virus then pop the cell upto 16 pieces
+                self.eat_virus(agar)
+            else:
+                # hide the cell
+                pass
         # for collisions between the same agar we merge
         elif (self.id == agar.id):
             if (self.parent == None and self.can_merge == True and agar.can_merge == True):
                 self.merge(agar)
-            elif (self.size >= agar.size):
+            elif (self.mass >= agar.mass):
                 self.boundary(agar)
             # else:
             #   agar.boundary(self)
         # for collisions between different agars attempt to eat
-        elif (self.size >= EAT_SIZE_THRESHOLD * agar.size):
+        elif (self.mass >= EAT_SIZE_THRESHOLD * agar.mass):
             if (self.encompasses(agar)):
                 self.eat(agar)
         # so that boundary is not affected when they try to eat you
-        elif (agar.size < EAT_SIZE_THRESHOLD * self.size):
+        elif (agar.mass < EAT_SIZE_THRESHOLD * self.mass):
             self.boundary(agar)
         return
 
     # check if an agar encompasses a certain point
     def encompasses(self, agar : tuple) -> bool:
-        return self.rect.collidepoint(agar.rect.center)
+        #return self.rect.collidepoint(agar.rect.center)
+        if (Vector.distance(self.position, agar.position) <= self.size):
+            return True
+        return False
+
+    def eat_virus(self, agar):
+
+        self.eat(agar)
+
+        split_these = [self]
+        _split_these = [self]
+        for i in range(4):
+            for member in split_these:
+                clone = member.no_delay_split();
+                if (clone != None):
+                    _split_these.append(clone)
+            split_these = _split_these
+        self.simulation.renderer.render_frame()
+
+        return
 
     # run through the process for eating another agar
     def eat(self, agar) -> None:
-        Debug.agar(self.id + " eats " + agar.id + ", gaining {0:.2f} size".format(agar.size / 5))
-        self.size = self.size + agar.size / 2
+        Debug.agar(self.id + " eats " + agar.id + ", gaining {0:.2f} size".format(agar.mass / 5))
+        self.mass = self.mass + agar.mass / EAT_MASS_GAIN_FACTOR
 
         if (len(agar.children) > 0):
             new_parent = agar.children[0]
-            if (self.simulation.renderer.focus == agar):
-                self.simulation.renderer.focus = new_parent
             new_parent.children = agar.children[1:]
             for child in new_parent.children:
                 child.parent = new_parent
-
+            new_parent.parent = None
+            if (self.simulation.renderer.focus == agar):
+                self.simulation.renderer.focus = new_parent
+            
         agar.disable()
         return
 
     # run through the process of merging with another agar
     def merge(self, agar) -> None:
-        Debug.agar(self.id + " merges  back, gaining {0:.2f} size".format(agar.size))
-        self.size = self.size + agar.size
+        Debug.agar(self.id + " merges  back, gaining {0:.2f} size".format(agar.mass))
+        self.mass = self.mass + agar.mass
 
         if (agar in self.children):
             self.children.remove(agar)
@@ -328,13 +439,24 @@ class Agar():
         return
 
     def boundary(self, agar) -> None:
-        perimeter = (agar.position - self.position).normalize() * (self.size + agar.size)
-        agar.position = self.position + perimeter
+        if (0 < Vector.distance(self.position, agar.position) <= self.size + agar.size):
+            # push it out a little
+            # = 1 at contact
+            #dist_normalized = max(0.5, Vector.distance(self.position, agar.position) / (self.size + agar.size))
+            #direction = (self.position - agar.position).normalize()
+            #projection = agar.velocity.dot(direction) * 1.1
+            # need to do some projection here(?) idea seems to work but numbers are too high
+            # agar.velocity = agar.velocity -  direction * (projection / dist_normalized )
+            perimeter = (agar.position - self.position).normalize() * (self.size + agar.size)
+            agar.position = self.position + perimeter
         return
 
     """ SWITCHES """
     # disable the whole agar
     def disable(self) -> None:
+
+        # remove times
+
         self.can_think = False
         self.is_eaten = True
         del self.rect
@@ -374,7 +496,14 @@ class Agar():
     # splitting
     def check_split(self):
         if (self.delayed_split == False):
-            if (self.size < 2 * MIN_AGAR_SIZE):
+            if (self.parent == None):
+                if (len(self.children) >= 15):
+                    self.can_split = False
+                    return
+            elif (len(self.parent.children) >= 15):
+                self.can_split = False
+                return
+            if (self.mass < 2 * MIN_AGAR_MASS):
                self.can_split = False
             else:
                 self.can_split = True
@@ -388,7 +517,7 @@ class Agar():
     # ejecting
     def check_eject(self):
         if (self.delayed_eject == False):
-            if (self.size < 2 * MIN_AGAR_SIZE):
+            if (self.mass < 2 * MIN_AGAR_MASS):
                self.can_eject = False
             else:
                 self.can_eject = True
@@ -402,11 +531,17 @@ class Agar():
 
     """ CONVERSIONS """
     @property
+    def size(self):
+        return MIN_AGAR_MASS * math.pow(self.mass / MIN_AGAR_MASS, MASS_TO_SIZE_EXPONENT)
+
+    @property
     def target_velocity(self):
         target_direction = self.target_point - self.position
         # snap this for cohesion
         if (target_direction.magnitude() < 20):
             target_velocity = Vector()
+        elif (target_direction.magnitude() < MAX_CURSOR_RANGE):
+            target_velocity = target_direction.normalize() * self.speed * (target_direction.magnitude() / MAX_CURSOR_RANGE)
         else:
             target_velocity = target_direction.normalize() * self.speed
         return target_velocity
@@ -416,13 +551,13 @@ class Agar():
     def speed(self) -> float:
         if (self.can_think == False):
             return self._speed
-        mass = self.size / 10
-        return min(MAX_SPEED, self._speed * mass / math.pow(mass, SIZE_SPEED_FACTOR))
+        mass = self.mass / 10
+        return min(MAX_SPEED, self._speed * mass / math.pow(mass, MASS_SPEED_FACTOR))
 
     # conversion between the size of the agar and its speed
     @property
     def merge_cooldown(self) -> float:
-        return BASE_MERGE_DELAY + (MERGE_DELAY_FACTOR * self.size)
+        return BASE_MERGE_DELAY + (MERGE_DELAY_FACTOR * self.mass)
 
     # conversion that outputs the id
     @property
@@ -506,24 +641,21 @@ class Blob(Agar):
     def __init__(self, simulation, 
                  int_id : int = DEFAULT_ID,
                  color_gradient : tuple = None,
-                 min_size : float = MIN_BLOB_SIZE, 
-                 max_size : float = MAX_BLOB_SIZE,
+                 min_mass : float = MIN_BLOB_MASS, 
+                 max_mass : float = MAX_BLOB_MASS,
                  position : Vector = DEFAULT_AGAR_POSITION, 
                  rect : game.Rect = None
                  ) -> None:
 
         # randomly generate the size of the blob
-        self.min_size = min_size
-        self.max_size = max_size
-        size = random.random() * (max_size - min_size) + min_size
-
-        # make sure this isn't thinking (otherwise it would be very heavy)
-        self.can_think = False
+        self.min_mass = min_mass
+        self.min_mass = max_mass
+        mass = random.random() * (max_mass - min_mass) + min_mass
 
         # initialize the rest of the agar
         Agar.__init__(self, simulation, 
                       int_id = int_id, 
-                      size = size, 
+                      mass = mass, 
                       color_gradient = color_gradient,
                       target_point = position,
                       position = position, 
@@ -540,12 +672,106 @@ class Blob(Agar):
         # blob size does not change
         return
 
-# class Virus(Agar):
+class Virus(Agar):
+    _color = Palette.YELLOW
+    def __init__(self, simulation, 
+                 int_id = DEFAULT_ID,
+                 target_point : Vector = None,
+                 position : Vector = DEFAULT_AGAR_POSITION, 
+                 rect : game.Rect = None,
+                 color_gradient : tuple = None,
+                 parent = None,
+                 is_eaten : bool = False
+                 ) -> None:
+
+        self.num_blobs_eaten = 0
+        self.incoming_blob_direction = Vector()
+        if (target_point == None):
+            target_point = position
+
+        Agar.__init__(self, simulation, 
+                      int_id = int_id, 
+                      mass = VIRUS_BASE_MASS, 
+                      size_loss_rate = 0,
+                      color_gradient = color_gradient,
+                      target_point = target_point,
+                      position = position, 
+                      speed = 500, 
+                      can_think = True, 
+                      can_merge = False,
+                      can_split = False,
+                      can_eat = True,
+                      parent = parent,
+                      rect = rect)
+
+        return
+
+
+    # viruses should only eat blobs
+    def eat(self, agar) -> None:
+        Debug.agar(self.id + " eats " + agar.id + ", gaining {0:.2f} size".format(agar.mass / 5))
+        # self.mass = self.mass + agar.mass / EAT_MASS_GAIN_FACTOR
+        if (agar.mass > 5):
+            self.num_blobs_eaten += 1
+            self.incoming_blob_direction = (self.position - agar.position).normalize()
+
+        agar.disable()
+        return
 
     # split itself if you're too big
-    # eat mass that is ejected at it
-    # split blobs that hit it (if the blob that hits it is bigger)
+    def decide_to_split(self) -> bool:
+        if (self.num_blobs_eaten >= VIRUS_POP_NUMBER):
+            # target point should be decided by where the blob is coming in from
+            self.split()
+            return True
+        return False
 
-# 
+    def split(self) -> None:
+        self.check_split()
+        if (self.can_split == False): return
+        Debug.agar(self.id + " is splitting")
 
+        # splits the agar
+        clone = self.split_clone()   
+        self.can_split = False
+
+        # slight delay before gaining control
+        clone.delayed_think = self.simulation.create_timer(time_interval = SPLIT_CHILD_THINKER_DELAY, method = clone.enable_think)
+        
+        # delay before this can merge back to the parent
+        clone.delayed_merge = False
+        
+        # delay before these can split again
+        clone.delayed_split = self.simulation.create_timer(time_interval = DEFAULT_SPLIT_DELAY, method = clone.enable_split)
+        self.delayed_split = self.simulation.create_timer(time_interval = DEFAULT_SPLIT_DELAY, method = self.enable_split)
+
+        # appends it to the list of agars in the simulation
+        #self.children.append(clone)
+        self.simulation.agars.append(clone)     
+        return
+
+    # issues
+    def split_clone(self):
+        clone = type(self)(self.simulation, 
+                    int_id = self.int_id, 
+                    target_point = self.incoming_blob_direction * 500 + self.target_point,
+                    position = self.position,
+                    parent = None
+                    )
+        # get the upper most parent
+        clone.can_think = True
+        clone.velocity = clone.target_velocity.normalize() * SPLIT_SPEED # no acceleration on start up
+        clone.mass = VIRUS_BASE_MASS
+        self.mass = VIRUS_BASE_MASS
+        clone.position = self.position + (clone.target_velocity.normalize() * (self.size + clone.size + 10))
+        self.num_blobs_eaten = 0
+        return clone
+
+    def check_split(self):
+        if (self.delayed_split == False):
+            if (self.num_blobs_eaten < VIRUS_POP_NUMBER):
+                self.can_split = False
+            else:
+                self.can_split = True
+        return
 

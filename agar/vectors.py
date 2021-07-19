@@ -115,5 +115,8 @@ class Vector():
         random_angle = 2 * (random.random() - 0.5) * max_angle
         return self.rotate(random_angle)
 
+    def dot(self, v):
+        return self.x * v.x + self.y * v.y
+
 
 
