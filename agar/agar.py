@@ -621,8 +621,8 @@ class SmartBot(Agar):
                 □□□□
         '''
         self.grid = []
-        originX = self.position.x + self.simulation.renderer.dimensions[0]
-        originY = self.position.y + self.simulation.renderer.dimensions[1]
+        originX = self.position.x - self.simulation.renderer.center.x - self.simulation.renderer.dimensions[0]
+        originY = self.position.y - self.simulation.renderer.center.y - self.simulation.renderer.dimensions[0]
 
         box_width = self.simulation.renderer.dimensions[0] / dimensions[0]
         box_height = self.simulation.renderer.dimensions[1] / dimensions[1]
