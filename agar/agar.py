@@ -621,15 +621,13 @@ class SmartBot(Agar):
                 □□□□
         '''
         self.grid = []
-        originX = self.position.x - self.simulation.renderer.center.x - self.simulation.renderer.dimensions[0]
-        originY = self.position.y - self.simulation.renderer.center.y - self.simulation.renderer.dimensions[0]
 
-        box_width = self.simulation.renderer.dimensions[0] / dimensions[0]
-        box_height = self.simulation.renderer.dimensions[1] / dimensions[1]
+        box_height = self.simulation.renderer.dimensions[1] / dimensions[0]
+        box_width = self.simulation.renderer.dimensions[0] / dimensions[1]
         for i in range(dimensions[0]):
             row = []
             for j in range(dimensions[1]):
-                rect = game.Rect((i * box_width + originX, j * box_height + originY), ( (i+1) * box_width + originX, (j+1) * box_height + originY) )
+                rect = game.Rect((j * box_width, i * box_height), ( (j+1) * box_width, (i+1) * box_height) )
                 row.append(rect)
             self.grid.append(row)
 
