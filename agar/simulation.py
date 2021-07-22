@@ -9,6 +9,7 @@ from threading import Timer
 from agar import Agar
 from agar import Player
 from agar import DumbBot
+from agar import SmartBot
 from agar import Blob
 from agar import Virus
 from vectors import Vector
@@ -18,18 +19,18 @@ from renderer import Renderer
 
 """ MAGIC VARIABLES """
 # default values for simulation (if not specified on initialization)
-DEFAULT_NUM_BOTS = 15
-DEFAULT_NUM_VIRUSES = 5
-DEFAULT_VIRUS_SPAWN_RATE = 0.02 # viruses per second
-DEFAULT_NUM_BLOBS = 1000
-DEFAULT_BLOB_SPAWN_RATE = 0.5 # blob batches per second
+DEFAULT_NUM_BOTS = 1
+DEFAULT_NUM_VIRUSES = 0
+DEFAULT_VIRUS_SPAWN_RATE = 0.000001 # viruses per second
+DEFAULT_NUM_BLOBS = 50
+DEFAULT_BLOB_SPAWN_RATE = 0.000001 # blob batches per second
 BLOB_BATCH_SIZE = 1
 DEFAULT_FRAME_RATE = 60
 DEFAULT_RUN_TIME = -1
-DEFAULT_MAP_HEIGHT = int(4000)
-DEFAULT_MAP_WIDTH = int(4000)
-DEFAULT_WINDOW_HEIGHT = int(1080)
-DEFAULT_WINDOW_WIDTH = int(1920)
+DEFAULT_MAP_HEIGHT = 4000
+DEFAULT_MAP_WIDTH = 4000
+DEFAULT_WINDOW_HEIGHT = 1080
+DEFAULT_WINDOW_WIDTH = 1920
 
 """ BASE SIMULATOR """
 class Simulation():
@@ -51,7 +52,7 @@ class Simulation():
                  run_time : float = DEFAULT_RUN_TIME
                  ):
 
-        self.caption = caption;
+        self.caption = caption
 
         # sets the base parameters
         self.player_is_active = player
@@ -92,6 +93,8 @@ class Simulation():
         self.spawn_blobs(num_blobs)
         Debug.simulation("Spawned {0} blobs".format(num_blobs))
 
+        self.renderer.set_focus(self.agars[0])
+
         # begins the simulation
         self.start()
         self.delayed_end = None
@@ -101,9 +104,8 @@ class Simulation():
     # spawns the player to be used in the simulation
     def spawn_player(self) -> None:
         spawn_pos = Vector(self.map_dimensions[0] / 2, self.map_dimensions[1] / 2)
-        player = Player(self, int_id = 0, position = spawn_pos, can_think = True, mass = 200)
-        self.renderer.set_focus(player)
-        self.agars.append(player)   
+        player = SmartBot(self, int_id = 0, position = spawn_pos, can_think = True) 
+        self.agars.append(player)  
         return 
 
     # spawns the agars to be used in the simulation
@@ -113,7 +115,7 @@ class Simulation():
             # picks out a position to spawn the agar at
             spawn_pos = Vector.random_vector_within_bounds((0, self.map_dimensions[0]), (0, self.map_dimensions[1]))
             # constructs the agar object
-            bot = DumbBot(self, int_id = i, position = spawn_pos, can_think = True, mass = 20)
+            bot = DumbBot(self, int_id = i, position = spawn_pos, can_think = True)
             # appends it to the list of agars in the simulation
             self.agars.append(bot)     
         return 
@@ -160,9 +162,9 @@ class Simulation():
         # begins the simulation
         # self.next_update = Timer(2, self.update, args=None, kwargs=None)
         # self.next_update.start()
-        while self.is_running:
-            self.update()
-            self.clock.tick(self.frame_rate)
+        # while self.is_running:
+            # self.update()
+            # self.clock.tick(self.frame_rate)
 
         return
 
@@ -276,7 +278,7 @@ class Simulation():
         return
     
     # check collisions between an agar and a list agars/colliders
-    def check_collision(self, agar : Agar, agars : list, colliders : list) -> (list, list):
+    def check_collision(self, agar : Agar, agars : list, colliders : list):
         # returns the indices of the all the collisions found
         collision_indices = agar.rect.collidelistall(colliders)
 

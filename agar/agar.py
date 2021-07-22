@@ -135,6 +135,9 @@ class Agar():
         self.delayed_merge = False
         self.delayed_split = False
         self.delayed_eject = False
+
+        self.grid = None
+
         return
 
     """ UPDATES """
@@ -183,6 +186,7 @@ class Agar():
     # update the size lost based on time passed since last update
     def update_size(self, time_interval : float = 0) -> float:
         self.mass = max(MIN_AGAR_MASS, self.mass - (self.mass * self.size_loss_rate * time_interval));
+        self.mass = min(MAX_AGAR_MASS, self.mass)
         # check whether the agar is over the splitting/ejecting threshold
         return self.mass
 
@@ -559,6 +563,82 @@ class Agar():
         str_id = type(self).__name__ + str(self.int_id)
         return str_id
 
+
+class SmartBot(Agar):
+    _color = Palette.BLUE
+    
+    def update_think(self):
+        # all thinking done in workspace
+
+        # but need to pass that thinking to children
+        """for child in self.children:
+            if (child.can_think):
+                child.target_point = self.target_point"""
+
+        pass
+
+    def get_channel_obs(self, obs) -> None:
+        ''' obs: np.array(x, y, num_channels)'''
+
+        dimensions = obs.shape[:2]
+        self.create_grid(dimensions)
+
+        # check grid for collisions with other agars
+        for i, row in enumerate(self.grid):
+            for j, box in enumerate(row):
+                # Check for enemies (avg mass)
+                total_mass = count = 0
+                for agar in self.simulation.agars:
+                    if (agar != self):
+                        if (box.colliderect(agar.rect)):
+                            # there is an enemy here
+                            count += 1
+                            total_mass += agar.mass
+
+                obs[i, j, 0] = total_mass / count if count else 0
+                        
+                # Check for blobs (count)
+                for blob in self.simulation.blobs:
+                    if (box.colliderect(blob.rect)):
+                        print("there is a blob here")
+                        obs[i, j, 1] += 1
+
+        # Rescale channels to be [0, 1]
+        # Enemies (/MAX_AGAR_MASS)
+        obs[:, :, 0] /= MAX_AGAR_MASS
+
+        # Blobs (/50)
+        obs[:, :, 1] /= 50
+
+        return
+
+    def create_grid(self, dimensions):
+
+        '''
+        dimensions = np.array(x, y, number_of_channels)
+            x, y = 2, 4
+                □□□□
+                □□□□
+        '''
+        self.grid = []
+        originX = self.position.x - self.renderer.dimensions[0]
+        originY = self.position.y - self.renderer.dimensions[1]
+
+        box_width = self.simulation.renderer.dimensions[0] / dimensions[0]
+        box_height = self.simulation.renderer.dimensions[1] / dimensions[1]
+        for i in range(dimensions[0]):
+            row = []
+            for j in range(dimensions[1]):
+                rect = game.Rect((i * box_width + originX, j * box_height + originY), ( (i+1) * box_width + originX, (j+1) * box_height + originY) )
+                row.append(rect)
+            self.grid.append(row)
+
+        #rect = game.Rect( self.position.x - 300, self.position.y - 300, self.position.x + 300, self.position.y + 300)
+        #game.draw.rect(surface = self.simulation.renderer.window, color = self.color_gradient[1],  rect = rect)
+
+
+        return
+
 class Player(Agar):
     """ A player controlled agar """
     _color = Palette.BLUE
@@ -768,4 +848,5 @@ class Virus(Agar):
             else:
                 self.can_split = True
         return
+
 

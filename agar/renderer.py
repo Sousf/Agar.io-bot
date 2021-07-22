@@ -49,6 +49,7 @@ class Renderer():
         self.focus = agar
         return None
 
+    # TODO: Fix grid rendering
     def render_frame(self) -> bool:
         if (self.focus == None):
             origin = Vector()
@@ -64,11 +65,24 @@ class Renderer():
             blob.rect = self.render_agar(blob, origin)
         for agar in self.simulation.agars:
             agar.rect = self.render_agar(agar, origin)
+            if (agar.grid != None):
+                print("hello")
+                self.render_grid(agar.grid)
              # change this to display whatever info we want
              # e.g. agar's id, size, number of eaten things, speed, current position etc
             self.add_text(agar, str(agar.id))
+            # 
         game.display.update()
         return True
+
+    def render_grid(self, grid): 
+        # game.draw.rect(surface = self.window, color = self.color_gradient[2],  rect = [500, 600, 700, 800], )
+        for row in grid:
+            for box in row:
+                game.draw.rect(surface = self.window, color = self.color_gradient[2],  rect = box, )
+                # game.draw.circle(surface = self.window, color = self.color_gradient[2], center = box.center, radius = 100)
+            #grid.append(row)
+        return None
 
     # draw a new agar
     def render_agar(self, agar : Agar, origin : Vector = Vector()) -> game.Rect:
