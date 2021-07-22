@@ -26,7 +26,7 @@ ACCELERATION = 3000
 MAX_CURSOR_RANGE = 300
 BASE_SPEED = 750
 SPLIT_SPEED = 1500
-EJECT_SPEED = 1500
+EJECT_SPEED = 2000
 MAX_SPEED = 600
 
 # controls the size for agars
@@ -63,8 +63,8 @@ SPLIT_CHILD_THINKER_DELAY = 0.2
 DEFAULT_SPLIT_DELAY = 0.3
 
 # time controls for ejection
-DEFAULT_EJECT_DELAY = 0.3
-EJECT_CHILD_THINKER_DELAY = 0.3
+DEFAULT_EJECT_DELAY = 0.2
+EJECT_CHILD_DISTANCE = 1250
 
 """ AGAR OBJECT """
 class Agar():
@@ -125,7 +125,7 @@ class Agar():
 
         # family
         self.parent = parent
-        self.children = [] # not using currently
+        self.children = []
 
         # states
         self.is_eaten = is_eaten
@@ -140,26 +140,24 @@ class Agar():
     """ UPDATES """
     # the actions to decide every time the agar thinks
     def update_think(self) -> bool:
-        # shut down the thinker 
-        if (self.can_think == False): 
-            return False
-        if (self.parent != None):
+        # don't think if it can't or is not the parent
+        if (self.can_think == False or self.parent != None): 
             return False
 
         # decide a direction to travel in
         self.decide_target_point()
         # decide whether to split
-        did_split = self.decide_to_split()
+        split = self.decide_to_split()
         # decide whether to eject
-        did_eject = self.decide_to_eject()
+        eject = self.decide_to_eject()
 
-        #print(len(self.children))
+        # itterate through the children
         for child in self.children:
             if (child.can_think):
                 child.target_point = self.target_point
-                if (did_split):
+                if (split):
                     child.split()
-                if (did_eject):
+                if (eject):
                     child.eject()
 
         return True
@@ -186,8 +184,6 @@ class Agar():
     def update_size(self, time_interval : float = 0) -> float:
         self.mass = max(MIN_AGAR_MASS, self.mass - (self.mass * self.size_loss_rate * time_interval));
         # check whether the agar is over the splitting/ejecting threshold
-        self.check_split()     
-        self.check_eject()
         return self.mass
 
     """ DECISIONS """
@@ -264,15 +260,13 @@ class Agar():
         return clone
 
     def eject(self) -> None:
+        self.check_eject()
         if (self.can_eject == False): return
         Debug.agar(self.id + " is ejecting")
 
         # constructs the agar object
         clone = self.eject_clone()  
         self.can_eject = False
-
-        # delay before the blob stops moving
-        clone.delayed_think = self.simulation.create_timer(time_interval = EJECT_CHILD_THINKER_DELAY, method = clone.disable_think)
 
         # delay before the parent can eject again 
         self.delayed_eject = self.simulation.create_timer(time_interval = DEFAULT_EJECT_DELAY, method = self.enable_eject)
@@ -292,10 +286,10 @@ class Agar():
                     int_id = self.int_id, 
                     mass = self.mass,
                     color_gradient = self.color_gradient,
-                    target_point = self.target_point,
+                    target_point = self.position + self.target_point.normalize() * EJECT_CHILD_DISTANCE,
                     position = self.position,
                     speed = self._speed,
-                    can_think = False, 
+                    can_think = True, 
                     can_split = False, 
                     can_merge = False,
                     parent = self
