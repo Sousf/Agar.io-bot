@@ -66,7 +66,6 @@ class Renderer():
         for agar in self.simulation.agars:
             agar.rect = self.render_agar(agar, origin)
             if (agar.grid != None):
-                print("hello")
                 self.render_grid(agar.grid)
              # change this to display whatever info we want
              # e.g. agar's id, size, number of eaten things, speed, current position etc

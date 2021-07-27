@@ -150,9 +150,9 @@ class Agar():
         # decide a direction to travel in
         self.decide_target_point()
         # decide whether to split
-        split = self.decide_to_split()
+        # split = self.decide_to_split()
         # decide whether to eject
-        eject = self.decide_to_eject()
+        # eject = self.decide_to_eject()
 
         # itterate through the children
         for child in self.children:
@@ -600,7 +600,6 @@ class SmartBot(Agar):
                 # Check for blobs (count)
                 for blob in self.simulation.blobs:
                     if (box.colliderect(blob.rect)):
-                        print("there is a blob here")
                         obs[i, j, 1] += 1
 
         # Rescale channels to be [0, 1]

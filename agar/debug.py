@@ -4,10 +4,10 @@ from colorama import init
 init(autoreset=True)
 
 LOG_TAG : str = "[Log]: "; DEBUG_LOG : bool = False
-WARNING_TAG : str = "[Warning]: "; DEBUG_WARNING : bool = True
-MENU_TAG : str = "[Menu]: "; DEBUG_MENU : bool = True
-SIMULATION_TAG : str = "[Simulation]: "; DEBUG_SIMULATION : bool = True; DEBUG_SIMULATION_UPDATE = False;
-AGAR_TAG : str = "[Agar]: "; DEBUG_AGAR : bool = True
+WARNING_TAG : str = "[Warning]: "; DEBUG_WARNING : bool = False
+MENU_TAG : str = "[Menu]: "; DEBUG_MENU : bool = False
+SIMULATION_TAG : str = "[Simulation]: "; DEBUG_SIMULATION : bool = False; DEBUG_SIMULATION_UPDATE = False
+AGAR_TAG : str = "[Agar]: "; DEBUG_AGAR : bool = False
 
 @dataclass
 class Debug():

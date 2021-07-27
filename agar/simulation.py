@@ -19,16 +19,17 @@ from renderer import Renderer
 
 """ MAGIC VARIABLES """
 # default values for simulation (if not specified on initialization)
-DEFAULT_NUM_BOTS = 1
+DEFAULT_NUM_BOTS = 16
+DEFAULT_ENEMY_RESPAWN_TIME = 0.1
 DEFAULT_NUM_VIRUSES = 0
 DEFAULT_VIRUS_SPAWN_RATE = 0.000001 # viruses per second
 DEFAULT_NUM_BLOBS = 50
-DEFAULT_BLOB_SPAWN_RATE = 0.000001 # blob batches per second
+DEFAULT_BLOB_SPAWN_RATE = 0.05 # blob batches per second
 BLOB_BATCH_SIZE = 1
 DEFAULT_FRAME_RATE = 60
 DEFAULT_RUN_TIME = -1
 DEFAULT_MAP_HEIGHT = 4000
-DEFAULT_MAP_WIDTH = 4000
+DEFAULT_MAP_WIDTH = 8000
 DEFAULT_WINDOW_HEIGHT = int(1080 / 2)
 DEFAULT_WINDOW_WIDTH = int(1920 / 2)
 
@@ -115,9 +116,12 @@ class Simulation():
             # picks out a position to spawn the agar at
             spawn_pos = Vector.random_vector_within_bounds((0, self.map_dimensions[0]), (0, self.map_dimensions[1]))
             # constructs the agar object
-            bot = DumbBot(self, int_id = i, position = spawn_pos, can_think = True)
+            bot = DumbBot(self, int_id = i, position = spawn_pos, can_think = True, mass = 50)
             # appends it to the list of agars in the simulation
-            self.agars.append(bot)     
+            self.agars.append(bot)
+            
+        self.create_timer(time_interval = (1 / DEFAULT_ENEMY_RESPAWN_TIME), method = self.spawn_bots)
+
         return 
     
     # spawns the viruses to be used in the simulation
