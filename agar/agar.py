@@ -362,7 +362,7 @@ class Agar():
             return
         # on the other hand, if we hit a virus
         elif (type(agar) == Virus):
-            if (self.mass > VIRUS_EAT_THRESHOLD):
+            if (self.mass > VIRUS_EAT_THRESHOLD and self.encompasses(agar)):
                 # eat the virus then pop the cell upto 16 pieces
                 self.eat_virus(agar)
             else:
