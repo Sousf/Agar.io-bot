@@ -147,4 +147,8 @@ for i in range(3, 10):
 #     if (env.simulation.is_running == False):
 #         break
 #     clock.tick(100)
-    
+
+# TODO: Fix total_timestep bug, and 
+# TODO: Random game popup at start before restarting with rectangles
+# TODO: Black screen of death on Peter's machine
+# TODO: 2048 total_timesteps incompatibility bug
