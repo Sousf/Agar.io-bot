@@ -33,7 +33,7 @@ class Environment(gym.Env):
         # define the observation space dimensions
         self.observation_space = spaces.Box(low=0, high=1, shape = (self.n_grid_rows, self.n_grid_cols, self.n_channels))
 
-        self.simulation = Simulation(player = True, map_dimensions=(DEFAULT_MAP_WIDTH, 0))
+        self.simulation = Simulation(render = False, player = True, map_dimensions=(DEFAULT_MAP_WIDTH, 0))
         self.player = self.simulation.agars[0]
         self.last_mass = MIN_AGAR_MASS
         self.reward = 0
@@ -66,7 +66,7 @@ class Environment(gym.Env):
 
         # Check if simulation is over (Did we die?)
         if self.player.is_eaten:
-            reward = -10_000
+            reward = -10000 #sorry it was underlining everything on my comp
             self.done = True
         else:
             reward = self.player.mass - self.last_mass
@@ -96,7 +96,7 @@ class Environment(gym.Env):
         print(int(self.max_mass))
         self.max_mass = 0
 
-        self.simulation = Simulation(player = True, map_dimensions=(DEFAULT_MAP_WIDTH, 0))
+        self.simulation = Simulation(render = False, player = True, map_dimensions=(DEFAULT_MAP_WIDTH, 0))
         self.player = self.simulation.agars[0]
         self.last_mass = MIN_AGAR_MASS
         self.reward = 0

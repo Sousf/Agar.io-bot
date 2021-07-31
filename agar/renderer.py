@@ -31,6 +31,7 @@ class Renderer():
         game.init()
         self.font = game.font.Font('freesansbold.ttf', 15)
         self.open = True
+        self.set_focus(self.simulation.agars[0])
         self.render_frame()
         return
 
@@ -62,14 +63,14 @@ class Renderer():
         self.window.blit(self.background, (0, 0))
         # draw the blobs first
         for blob in self.simulation.blobs:
-            blob.rect = self.render_agar(blob, origin)
+            self.render_agar(blob, origin)
         for agar in self.simulation.agars:
-            agar.rect = self.render_agar(agar, origin)
+            self.render_agar(agar, origin)
             if (agar.grid != None):
                 self.render_grid(agar.grid)
              # change this to display whatever info we want
              # e.g. agar's id, size, number of eaten things, speed, current position etc
-            self.add_text(agar, str(agar.id))
+            # self.add_text(agar, str(agar.id))
             # 
         game.display.update()
         return True

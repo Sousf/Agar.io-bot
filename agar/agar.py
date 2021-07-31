@@ -621,8 +621,8 @@ class SmartBot(Agar):
         '''
         self.grid = []
 
-        box_height = self.simulation.renderer.dimensions[1] / dimensions[0]
-        box_width = self.simulation.renderer.dimensions[0] / dimensions[1]
+        box_height = self.simulation.vision_dimensions[1] / dimensions[0]
+        box_width = self.simulation.vision_dimensions[0] / dimensions[1]
         for i in range(dimensions[0]):
             row = []
             for j in range(dimensions[1]):
@@ -671,9 +671,9 @@ class Player(Agar):
 
         # get the absolute mouse position
         if (self.parent == None):     
-            mouse_absolute_pos = mouse_vector + self.position - self.simulation.renderer.center
+            mouse_absolute_pos = mouse_vector + self.position - self.simulation.vision_center
         else:
-            mouse_absolute_pos = mouse_vector + self.parent.position - self.simulation.renderer.center
+            mouse_absolute_pos = mouse_vector + self.parent.position - self.simulation.vision_center
 
         return mouse_absolute_pos
 
@@ -686,9 +686,9 @@ class DumbBot(Agar):
         # when they split, both agars need to be moving towards a certain point
         # the agars that have the same parent need to be able to communicate with each other (?)
         # right now the child agars move independently of the parent which is incorrect
-        vision_bounds = self.simulation.renderer.dimensions
+        vision_bounds = self.simulation.vision_dimensions
         if (random.random() > 0.95):
-            self.target_point = Vector.random_vector_within_bounds([0, vision_bounds[0]], [0, vision_bounds[1]]) + self.position - self.simulation.renderer.center
+            self.target_point = Vector.random_vector_within_bounds([0, vision_bounds[0]], [0, vision_bounds[1]]) + self.position - self.simulation.vision_center
         return
 
     # randomly decide to split

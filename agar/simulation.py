@@ -19,6 +19,7 @@ from renderer import Renderer
 
 """ MAGIC VARIABLES """
 # default values for simulation (if not specified on initialization)
+RENDER = True
 DEFAULT_NUM_BOTS = 16
 DEFAULT_ENEMY_RESPAWN_TIME = 0.1
 DEFAULT_NUM_VIRUSES = 0
@@ -41,6 +42,7 @@ class Simulation():
     regardless of if this matches real time values)
     """
     def __init__(self, caption : str = "Base Simulation",
+                 render : bool = RENDER,
                  player : bool = False,
                  num_bots : int = DEFAULT_NUM_BOTS,
                  num_viruses : int = DEFAULT_NUM_VIRUSES,
@@ -67,6 +69,7 @@ class Simulation():
         self.is_running = True
         self.next_update = None
         self.delayed_end = None
+        self.render = render
         self.clock = game.time.Clock()
 
         # used for collisions
@@ -74,7 +77,10 @@ class Simulation():
 
         Debug.simulation("Running " + self.caption + " for {0} seconds at {1:.2f} frames per second".format(self.run_time, (1 / self.frame_rate)))
         # constructs the interface
-        self.renderer = Renderer(self, width = window_dimensions[0], height = window_dimensions[1])
+        self.vision_dimensions = (window_dimensions[0], window_dimensions[1])
+        self.vision_center = Vector(window_dimensions[0] / 2, window_dimensions[1] / 2)
+        if (self.render):
+           self.renderer = Renderer(self, width = window_dimensions[0], height = window_dimensions[1])
 
         # spawn the player if necessary
         self.agars = []
@@ -93,8 +99,6 @@ class Simulation():
         self.blobs = []
         self.spawn_blobs(num_blobs)
         Debug.simulation("Spawned {0} blobs".format(num_blobs))
-
-        self.renderer.set_focus(self.agars[0])
 
         # begins the simulation
         self.start()
@@ -161,15 +165,9 @@ class Simulation():
     # start the simulation
     def start(self):
         Debug.simulation("Starting rendering")
-        self.renderer.start()
-
-        # begins the simulation
-        # self.next_update = Timer(2, self.update, args=None, kwargs=None)
-        # self.next_update.start()
-        # while self.is_running:
-            # self.update()
-            # self.clock.tick(self.frame_rate)
-
+        self.update_rects()
+        if (self.render):
+            self.renderer.start()
         return
 
     # shut down the simulation
@@ -186,7 +184,8 @@ class Simulation():
         if (self.next_update != None and self.next_update.is_alive()): self.next_update.cancel()
 
         # closes the window after a short buffer (not working)
-        self.renderer.close()
+        if (self.render):
+            self.renderer.close()
         return
 
     """ UPDATES """
@@ -212,16 +211,21 @@ class Simulation():
 
         # yes, most of these can be done within
         # a single loop
+        # update the rects (colliders)
+        self.update_rects()
         # set the sizes
         self.update_sizes()
         # check for changes
         self.update_thinkers()
         # set the positions
         self.update_motions()
-        # update the window
-        self.renderer.update()
+
         # check for collisions
         self.check_collisions()
+        # update the window
+        if (self.render):
+            self.renderer.update()
+
 
         Debug.simulation_update("{0} agars left, and {0} blobs".format(len(self.agars), len(self.blobs)))
 
@@ -230,7 +234,7 @@ class Simulation():
         # self.next_update.start()
         return
 
-    # hello
+    # updates the thinkers
     def update_thinkers(self) -> None:
         for agar in self.agars:
             agar.update_think()
@@ -251,6 +255,20 @@ class Simulation():
         for agar in self.agars:
             agar.update_size(1/self.frame_rate)
         return
+
+    # updates the rects (colliders)
+    def update_rects(self) -> None:
+        # don't think i need to update blobs
+        # draw the blobs first
+        for blob in self.blobs:
+            blob.rect = game.Rect(blob.position.x - blob.size, blob.position.y - blob.size, 2 * blob.size, 2 * blob.size)
+        for agar in self.agars:
+            agar.rect = game.Rect(agar.position.x - agar.size, agar.position.y - agar.size, 2 * agar.size, 2 * agar.size)
+            # doing it this way in case we wanna add more smart bots
+             # change this to display whatever info we want
+             # e.g. agar's id, size, number of eaten things, speed, current position etc
+
+        pass
 
     def create_timer(self, time_interval : float = 0, method = None) -> bool:
         if (method == None): return False

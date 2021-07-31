@@ -34,16 +34,25 @@ class Menu():
     # runs a simulation with ~20 'dumb' agar bots
     def dumb_bots(self) -> None:
         self.sim = Simulation(caption = "Dumb Bot Simulation", player = False)
+        while (self.sim.is_running):
+            self.sim.update()
+            self.sim.clock(self.sim.frame_rate)
         return None
 
     # runs a player controlled agar simulation
     def player(self) -> None:
         self.sim = Simulation(caption = "Player Simulation", player = True, num_bots = 0, num_viruses = 0)
+        while (self.sim.is_running):
+            self.sim.update()
+            self.sim.clock.tick(self.sim.frame_rate)
         return None 
 
     # runs a player controlled agar simulation with a few 'dumb' bots
     def player_with_bots(self) -> None:
         self.sim = Simulation(caption = "Player Simulation", player = True)
+        while (self.sim.is_running):
+            self.sim.update()
+            self.sim.clock.tick(self.sim.frame_rate)
         return None 
 
 def __main__():
