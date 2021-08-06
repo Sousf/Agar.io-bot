@@ -1,0 +1,21 @@
+Using cuda device
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 235      |
+|    ep_rew_mean        | -1e+04   |
+| time/                 |          |
+|    fps                | 195      |
+|    iterations         | 100      |
+|    time_elapsed       | 2        |
+|    total_timesteps    | 500      |
+| train/                |          |
+|    entropy_loss       | -1.44    |
+|    explained_variance | -0.00885 |
+|    learning_rate      | 0.0007   |
+|    n_updates          | 99       |
+|    policy_loss        | -0.0366  |
+|    std                | 1.02     |
+|    value_loss         | 0.000464 |
+------------------------------------

@@ -1,0 +1,172 @@
+diff --git a/agar/__pycache__/agar.cpython-38.pyc b/agar/__pycache__/agar.cpython-38.pyc
+index 3ad3f24..bfe7db7 100644
+Binary files a/agar/__pycache__/agar.cpython-38.pyc and b/agar/__pycache__/agar.cpython-38.pyc differ
+diff --git a/agar/__pycache__/renderer.cpython-38.pyc b/agar/__pycache__/renderer.cpython-38.pyc
+index ef6407e..51218ac 100644
+Binary files a/agar/__pycache__/renderer.cpython-38.pyc and b/agar/__pycache__/renderer.cpython-38.pyc differ
+diff --git a/agar/__pycache__/simulation.cpython-38.pyc b/agar/__pycache__/simulation.cpython-38.pyc
+index 4ddacb9..1b52c06 100644
+Binary files a/agar/__pycache__/simulation.cpython-38.pyc and b/agar/__pycache__/simulation.cpython-38.pyc differ
+diff --git a/agar/workspace.py b/agar/workspace.py
+index e056b71..ef8c205 100644
+--- a/agar/workspace.py
++++ b/agar/workspace.py
+@@ -9,6 +9,10 @@ from vectors import Vector
+ from dataclasses import dataclass
+ import pygame
+ 
++RENDER_ENV = True
++clock = pygame.time.Clock()
++
++
+ class Environment(gym.Env):  
+     # required for stable baselines 
+     metadata = { 'render.modes': ['human'] }
+@@ -33,7 +37,7 @@ class Environment(gym.Env):
+         # define the observation space dimensions
+         self.observation_space = spaces.Box(low=0, high=1, shape = (self.n_grid_rows, self.n_grid_cols, self.n_channels))
+ 
+-        self.simulation = Simulation(render = False, player = True, map_dimensions=(DEFAULT_MAP_WIDTH, 0))
++        self.simulation = Simulation(render = RENDER_ENV, player = True, map_dimensions=(DEFAULT_MAP_WIDTH, 0))
+         self.player = self.simulation.agars[0]
+         self.last_mass = MIN_AGAR_MASS
+         self.reward = 0
+@@ -78,6 +82,7 @@ class Environment(gym.Env):
+         # required to return: observation, reward, done, info
+ 
+         self.simulation.update()
++        clock.tick(100)
+ 
+         self.max_mass = max(self.max_mass, self.player.mass)
+ 
+@@ -93,10 +98,10 @@ class Environment(gym.Env):
+         self.simulation.end()
+         self.done = False
+ 
+-        print(int(self.max_mass))
++        #print(int(self.max_mass))
+         self.max_mass = 0
+ 
+-        self.simulation = Simulation(render = False, player = True, map_dimensions=(DEFAULT_MAP_WIDTH, 0))
++        self.simulation = Simulation(render = RENDER_ENV, player = True, map_dimensions=(DEFAULT_MAP_WIDTH, 0))
+         self.player = self.simulation.agars[0]
+         self.last_mass = MIN_AGAR_MASS
+         self.reward = 0
+@@ -123,32 +128,97 @@ class Agent():
+     def get_action(self):
+         return np.array([0])
+         
+-#agent = Agent()
+-env = Environment()
+-clock = pygame.time.Clock()
+-
++""""Stable Baselines Stuff"""
+ from stable_baselines3.common.env_checker import check_env
+ from stable_baselines3 import PPO
++from stable_baselines3 import A2C
++from stable_baselines3.common.policies import ActorCriticPolicy
++
++# Custom MLP policy of three layers of size 128 each
++class CustomPolicy(ActorCriticPolicy):
++    def __init__(self, *args, **kwargs):
++        super(CustomPolicy, self).__init__(*args, **kwargs, net_arch=[dict(pi=[10], vf=[10])])
++
++import wandb
++from wandb.integration.sb3 import WandbCallback
++
++config = {
++    "policy_type": "MlpPolicy",
++    "total_timesteps": 5000,
++    "env_name": "agar",
++}
++
++run = wandb.init(
++    project="agar",
++    config=config,
++    sync_tensorboard=True,  # auto-upload sb3's tensorboard metrics
++    monitor_gym=True,  # auto-upload the videos of agents playing the game
++    save_code=True,  # optional
++)
++env = Environment()
+ 
+-model = PPO('MlpPolicy', env, verbose=1)
+-
++model = A2C(CustomPolicy, env, verbose=2)
++#model = A2C('MlpPolicy', env, verbose=1)
+ 
+-for i in range(3, 10):
+-    model.learn(total_timesteps=i)
+-    print("total_timestep =", i, "\n")
++model.learn(total_timesteps=config['total_timesteps'], callback=WandbCallback(gradient_save_freq=100, verbose=2))
++run.finish()
++#agent = Agent()
+ 
+ #check_env(env)
+-# from time import sleep
+-# for i in range(1000):
+-#     action = agent.get_action()
+-#     env.step(action)
+-#     print(f'{env.reward}, {env.action}, {env.obs}')
+-#     #sleep(0.01)
+-#     if (env.simulation.is_running == False):
+-#         break
+-#     clock.tick(100)
++#for i in range(1000):
++#    action = agent.get_action()
++#    env.step(action)
++#    print(f'{env.reward}, {env.action}, {env.obs}')
++#    #sleep(0.01)
++#    if (env.simulation.is_running == False):
++#        break
++#    clock.tick(100)
+ 
+ # TODO: Fix total_timestep bug, and 
+ # TODO: Random game popup at start before restarting with rectangles
+ # TODO: Black screen of death on Peter's machine
+-# TODO: 2048 total_timesteps incompatibility bug
+\ No newline at end of file
++# TODO: 2048 total_timesteps incompatibility bug
++
++# import gym
++"""from stable_baselines3 import A2C
++env = gym.make('CartPole-v1')
++model = A2C('MlpPolicy', env, verbose=1)
++model.learn(total_timesteps=10000)
++obs = env.reset()
++
++for i in range(1000):
++    action, _state = model.predict(obs, deterministic=True)
++    obs, reward, done, info = env.step(action)
++    env.render()
++    if done:
++        obs = env.reset()"""
++
++from stable_baselines.common.callbacks import BaseCallback
++
++
++class CustomCallback(BaseCallback):
++        # Those variables will be accessible in the callback
++        # (they are defined in the base class)
++        # The RL model
++        # self.model = None  # type: BaseRLModel
++        # An alias for self.model.get_env(), the environment used for training
++        # self.training_env = None  # type: Union[gym.Env, VecEnv, None]
++        # Number of time the callback was called
++        # self.n_calls = 0  # type: int
++        # self.num_timesteps = 0  # type: int
++        # local and global variables
++        # self.locals = None  # type: Dict[str, Any]
++        # self.globals = None  # type: Dict[str, Any]
++        # The logger object, used to report things in the terminal
++        # self.logger = None  # type: logger.Logger
++        # # Sometimes, for event callback, it is useful
++        # # to have access to the parent object
++        # self.parent = None  # type: Optional[BaseCallback]
++
++    def __init__(self, verbose=0):
++        super(CustomCallback, self).__init__(verbose)
++
++    def _on_step(self) -> bool:
++        if not (self.model is None):
++            print("i have access")
++        return True

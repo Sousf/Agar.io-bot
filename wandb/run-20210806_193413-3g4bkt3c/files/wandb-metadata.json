@@ -1,0 +1,24 @@
+{
+    "os": "Windows-10-10.0.19041-SP0",
+    "python": "3.8.8",
+    "heartbeatAt": "2021-08-06T09:34:16.578196",
+    "startedAt": "2021-08-06T09:34:13.775038",
+    "docker": null,
+    "gpu": "NVIDIA GeForce RTX 2080 Ti",
+    "gpu_count": 1,
+    "cpu_count": 24,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "d:/ML Projects/Agar.io-bot/agar/workspace.py",
+    "codePath": "agar\\workspace.py",
+    "git": {
+        "remote": "https://github.com/Sousf/Agar.io-bot",
+        "commit": "7597bc6c52d6ec404228b804946c23aa728745c4"
+    },
+    "email": "vopeter1662000@gmail.com",
+    "root": "D:/ML Projects/Agar.io-bot",
+    "host": "DESKTOP-6D838IK",
+    "username": "User",
+    "executable": "C:\\Users\\User\\AppData\\Local\\Programs\\Python\\Python38\\python.exe"
+}

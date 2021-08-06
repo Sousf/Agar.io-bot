@@ -1,0 +1,67 @@
+2021-08-06 19:34:14,582 INFO    MainThread:27532 [internal.py:wandb_internal():88] W&B internal server running at pid: 27532, started at: 2021-08-06 19:34:14.575039
+2021-08-06 19:34:14,585 INFO    WriterThread:27532 [datastore.py:open_for_write():80] open: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\run-3g4bkt3c.wandb
+2021-08-06 19:34:14,585 DEBUG   HandlerThread:27532 [handler.py:handle_request():124] handle_request: check_version
+2021-08-06 19:34:14,591 DEBUG   SenderThread:27532 [sender.py:send():179] send: header
+2021-08-06 19:34:14,591 DEBUG   SenderThread:27532 [sender.py:send_request():193] send_request: check_version
+2021-08-06 19:34:14,657 DEBUG   SenderThread:27532 [sender.py:send():179] send: run
+2021-08-06 19:34:15,070 DEBUG   HandlerThread:27532 [handler.py:handle_request():124] handle_request: run_start
+2021-08-06 19:34:15,102 INFO    SenderThread:27532 [dir_watcher.py:__init__():168] watching files in: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files
+2021-08-06 19:34:15,102 INFO    SenderThread:27532 [sender.py:_start_run_threads():716] run started: 3g4bkt3c with start time 1628242453
+2021-08-06 19:34:15,102 DEBUG   SenderThread:27532 [sender.py:send():179] send: summary
+2021-08-06 19:34:15,104 INFO    SenderThread:27532 [sender.py:_save_file():841] saving file wandb-summary.json with policy end
+2021-08-06 19:34:16,099 INFO    Thread-12 :27532 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\wandb-summary.json
+2021-08-06 19:34:16,577 DEBUG   HandlerThread:27532 [meta.py:__init__():39] meta init
+2021-08-06 19:34:16,578 DEBUG   HandlerThread:27532 [meta.py:__init__():53] meta init done
+2021-08-06 19:34:16,578 DEBUG   HandlerThread:27532 [meta.py:probe():210] probe
+2021-08-06 19:34:16,585 DEBUG   HandlerThread:27532 [meta.py:_setup_git():200] setup git
+2021-08-06 19:34:16,681 DEBUG   HandlerThread:27532 [meta.py:_setup_git():207] setup git done
+2021-08-06 19:34:16,682 DEBUG   HandlerThread:27532 [meta.py:_save_code():89] save code
+2021-08-06 19:34:16,728 DEBUG   HandlerThread:27532 [meta.py:_save_code():110] save code done
+2021-08-06 19:34:16,728 DEBUG   HandlerThread:27532 [meta.py:_save_patches():127] save patches
+2021-08-06 19:34:17,112 INFO    Thread-12 :27532 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\code\agar\workspace.py
+2021-08-06 19:34:17,112 INFO    Thread-12 :27532 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\code\agar
+2021-08-06 19:34:17,113 INFO    Thread-12 :27532 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\code
+2021-08-06 19:34:17,717 DEBUG   HandlerThread:27532 [meta.py:_save_patches():169] save patches done
+2021-08-06 19:34:17,717 DEBUG   HandlerThread:27532 [meta.py:_save_pip():57] save pip
+2021-08-06 19:34:17,718 DEBUG   HandlerThread:27532 [meta.py:_save_pip():71] save pip done
+2021-08-06 19:34:17,718 DEBUG   HandlerThread:27532 [meta.py:probe():252] probe done
+2021-08-06 19:34:17,721 DEBUG   SenderThread:27532 [sender.py:send():179] send: files
+2021-08-06 19:34:17,721 INFO    SenderThread:27532 [sender.py:_save_file():841] saving file wandb-metadata.json with policy now
+2021-08-06 19:34:17,722 INFO    SenderThread:27532 [sender.py:_save_file():841] saving file code\agar\workspace.py with policy now
+2021-08-06 19:34:17,723 INFO    SenderThread:27532 [sender.py:_save_file():841] saving file diff.patch with policy now
+2021-08-06 19:34:17,728 DEBUG   HandlerThread:27532 [handler.py:handle_request():124] handle_request: stop_status
+2021-08-06 19:34:17,728 DEBUG   SenderThread:27532 [sender.py:send_request():193] send_request: stop_status
+2021-08-06 19:34:18,004 INFO    Thread-30 :27532 [upload_job.py:push():117] Skipped uploading C:\Users\User\AppData\Local\Temp\tmp7y58b8zjwandb\248eu4wg-code/agar/workspace.py
+2021-08-06 19:34:18,127 INFO    Thread-12 :27532 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\diff.patch
+2021-08-06 19:34:18,127 INFO    Thread-12 :27532 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\output.log
+2021-08-06 19:34:18,128 INFO    Thread-12 :27532 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\wandb-metadata.json
+2021-08-06 19:34:18,128 INFO    Thread-12 :27532 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\requirements.txt
+2021-08-06 19:34:18,577 INFO    Thread-31 :27532 [upload_job.py:push():137] Uploaded file C:\Users\User\AppData\Local\Temp\tmp7y58b8zjwandb\2nx0vm65-diff.patch
+2021-08-06 19:34:18,614 INFO    Thread-29 :27532 [upload_job.py:push():137] Uploaded file C:\Users\User\AppData\Local\Temp\tmp7y58b8zjwandb\3b8hnqoe-wandb-metadata.json
+2021-08-06 19:34:19,465 DEBUG   SenderThread:27532 [sender.py:send():179] send: config
+2021-08-06 19:34:20,152 INFO    Thread-12 :27532 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\output.log
+2021-08-06 19:34:24,191 INFO    Thread-12 :27532 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\output.log
+2021-08-06 19:34:26,214 INFO    Thread-12 :27532 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\output.log
+2021-08-06 19:34:45,396 INFO    Thread-12 :27532 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\config.yaml
+2021-08-06 19:34:47,836 DEBUG   SenderThread:27532 [sender.py:send():179] send: stats
+2021-08-06 19:34:55,956 WARNING MainThread:27532 [internal.py:is_dead():366] Internal process exiting, parent pid 18768 disappeared
+2021-08-06 19:34:55,957 ERROR   MainThread:27532 [internal.py:wandb_internal():143] Internal process shutdown.
+2021-08-06 19:34:56,903 INFO    WriterThread:27532 [datastore.py:close():288] close: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\run-3g4bkt3c.wandb
+2021-08-06 19:34:56,903 INFO    SenderThread:27532 [sender.py:finish():947] shutting down sender
+2021-08-06 19:34:56,903 INFO    HandlerThread:27532 [handler.py:finish():658] shutting down handler
+2021-08-06 19:34:56,903 INFO    SenderThread:27532 [dir_watcher.py:finish():282] shutting down directory watcher
+2021-08-06 19:34:57,494 INFO    SenderThread:27532 [dir_watcher.py:finish():312] scan: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files
+2021-08-06 19:34:57,494 INFO    SenderThread:27532 [dir_watcher.py:finish():318] scan save: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\config.yaml config.yaml
+2021-08-06 19:34:57,494 INFO    SenderThread:27532 [dir_watcher.py:finish():318] scan save: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\diff.patch diff.patch
+2021-08-06 19:34:57,495 INFO    SenderThread:27532 [dir_watcher.py:finish():318] scan save: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\output.log output.log
+2021-08-06 19:34:57,495 INFO    SenderThread:27532 [dir_watcher.py:finish():318] scan save: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\requirements.txt requirements.txt
+2021-08-06 19:34:57,497 INFO    SenderThread:27532 [dir_watcher.py:finish():318] scan save: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\wandb-metadata.json wandb-metadata.json
+2021-08-06 19:34:57,497 INFO    SenderThread:27532 [dir_watcher.py:finish():318] scan save: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\wandb-summary.json wandb-summary.json
+2021-08-06 19:34:57,502 INFO    SenderThread:27532 [dir_watcher.py:finish():318] scan save: D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\code\agar\workspace.py code\agar\workspace.py
+2021-08-06 19:34:57,504 INFO    SenderThread:27532 [file_pusher.py:finish():177] shutting down file pusher
+2021-08-06 19:34:57,504 INFO    SenderThread:27532 [file_pusher.py:join():182] waiting for file pusher
+2021-08-06 19:34:58,233 INFO    Thread-35 :27532 [upload_job.py:push():137] Uploaded file D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\wandb-summary.json
+2021-08-06 19:34:58,239 INFO    Thread-32 :27532 [upload_job.py:push():137] Uploaded file D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\config.yaml
+2021-08-06 19:34:58,242 INFO    Thread-34 :27532 [upload_job.py:push():137] Uploaded file D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\requirements.txt
+2021-08-06 19:34:58,341 INFO    Thread-33 :27532 [upload_job.py:push():137] Uploaded file D:\ML Projects\Agar.io-bot\wandb\run-20210806_193413-3g4bkt3c\files\output.log
+2021-08-06 19:34:59,263 INFO    MainThread:27532 [internal.py:handle_exit():78] Internal process exited

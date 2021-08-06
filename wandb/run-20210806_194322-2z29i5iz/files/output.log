@@ -1,0 +1,56 @@
+Using cuda device
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 237      |
+|    ep_rew_mean        | -1e+04   |
+| time/                 |          |
+|    fps                | 186      |
+|    iterations         | 100      |
+|    time_elapsed       | 2        |
+|    total_timesteps    | 500      |
+| train/                |          |
+|    entropy_loss       | -1.41    |
+|    explained_variance | -0.0398  |
+|    learning_rate      | 0.0007   |
+|    n_updates          | 99       |
+|    policy_loss        | 4.18     |
+|    std                | 0.998    |
+|    value_loss         | 6.18     |
+------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 237      |
+|    ep_rew_mean        | -1e+04   |
+| time/                 |          |
+|    fps                | 233      |
+|    iterations         | 200      |
+|    time_elapsed       | 4        |
+|    total_timesteps    | 1000     |
+| train/                |          |
+|    entropy_loss       | -1.42    |
+|    explained_variance | -0.201   |
+|    learning_rate      | 0.0007   |
+|    n_updates          | 199      |
+|    policy_loss        | 0.00864  |
+|    std                | 0.998    |
+|    value_loss         | 4.67e-05 |
+------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 237      |
+|    ep_rew_mean        | -1e+04   |
+| time/                 |          |
+|    fps                | 254      |
+|    iterations         | 300      |
+|    time_elapsed       | 5        |
+|    total_timesteps    | 1500     |
+| train/                |          |
+|    entropy_loss       | -1.42    |
+|    explained_variance | 0.0243   |
+|    learning_rate      | 0.0007   |
+|    n_updates          | 299      |
+|    policy_loss        | -0.0154  |
+|    std                | 0.999    |
+|    value_loss         | 0.00026  |

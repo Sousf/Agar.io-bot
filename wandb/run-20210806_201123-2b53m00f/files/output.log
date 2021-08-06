@@ -1,0 +1,92 @@
+Using cuda device
+Wrapping the env with a `Monitor` wrapper
+Wrapping the env in a DummyVecEnv.
+-------------------------------------
+| rollout/              |           |
+|    ep_len_mean        | 45.9      |
+|    ep_rew_mean        | -1e+04    |
+| time/                 |           |
+|    fps                | 109       |
+|    iterations         | 100       |
+|    time_elapsed       | 4         |
+|    total_timesteps    | 500       |
+| train/                |           |
+|    entropy_loss       | -1.45     |
+|    explained_variance | -1.19e-07 |
+|    learning_rate      | 0.0007    |
+|    n_updates          | 99        |
+|    policy_loss        | -0.024    |
+|    std                | 1.03      |
+|    value_loss         | 0.000543  |
+-------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 79.9     |
+|    ep_rew_mean        | -1e+04   |
+| time/                 |          |
+|    fps                | 137      |
+|    iterations         | 200      |
+|    time_elapsed       | 7        |
+|    total_timesteps    | 1000     |
+| train/                |          |
+|    entropy_loss       | -1.43    |
+|    explained_variance | 0.000133 |
+|    learning_rate      | 0.0007   |
+|    n_updates          | 199      |
+|    policy_loss        | -0.0261  |
+|    std                | 1.01     |
+|    value_loss         | 0.000645 |
+------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 75.4     |
+|    ep_rew_mean        | -1e+04   |
+| time/                 |          |
+|    fps                | 139      |
+|    iterations         | 300      |
+|    time_elapsed       | 10       |
+|    total_timesteps    | 1500     |
+| train/                |          |
+|    entropy_loss       | -1.44    |
+|    explained_variance | 0.204    |
+|    learning_rate      | 0.0007   |
+|    n_updates          | 299      |
+|    policy_loss        | -0.0156  |
+|    std                | 1.02     |
+|    value_loss         | 0.000199 |
+------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 104      |
+|    ep_rew_mean        | -1e+04   |
+| time/                 |          |
+|    fps                | 147      |
+|    iterations         | 400      |
+|    time_elapsed       | 13       |
+|    total_timesteps    | 2000     |
+| train/                |          |
+|    entropy_loss       | -1.44    |
+|    explained_variance | -0.0709  |
+|    learning_rate      | 0.0007   |
+|    n_updates          | 399      |
+|    policy_loss        | -0.0182  |
+|    std                | 1.02     |
+|    value_loss         | 0.000213 |
+------------------------------------
+------------------------------------
+| rollout/              |          |
+|    ep_len_mean        | 104      |
+|    ep_rew_mean        | -1e+04   |
+| time/                 |          |
+|    fps                | 159      |
+|    iterations         | 500      |
+|    time_elapsed       | 15       |
+|    total_timesteps    | 2500     |
+| train/                |          |
+|    entropy_loss       | -1.43    |
+|    explained_variance | 0.00296  |
+|    learning_rate      | 0.0007   |
+|    n_updates          | 499      |
+|    policy_loss        | -0.0151  |
+|    std                | 1.01     |
+|    value_loss         | 0.000158 |

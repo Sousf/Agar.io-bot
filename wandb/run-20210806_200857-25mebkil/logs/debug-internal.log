@@ -1,0 +1,170 @@
+2021-08-06 20:08:58,651 INFO    MainThread:30220 [internal.py:wandb_internal():88] W&B internal server running at pid: 30220, started at: 2021-08-06 20:08:58.643404
+2021-08-06 20:08:58,653 INFO    WriterThread:30220 [datastore.py:open_for_write():80] open: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\run-25mebkil.wandb
+2021-08-06 20:08:58,654 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: check_version
+2021-08-06 20:08:58,659 DEBUG   SenderThread:30220 [sender.py:send():179] send: header
+2021-08-06 20:08:58,659 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: check_version
+2021-08-06 20:08:58,717 DEBUG   SenderThread:30220 [sender.py:send():179] send: run
+2021-08-06 20:08:59,089 INFO    SenderThread:30220 [dir_watcher.py:__init__():168] watching files in: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files
+2021-08-06 20:08:59,089 INFO    SenderThread:30220 [sender.py:_start_run_threads():716] run started: 25mebkil with start time 1628244537
+2021-08-06 20:08:59,089 DEBUG   SenderThread:30220 [sender.py:send():179] send: summary
+2021-08-06 20:08:59,090 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: run_start
+2021-08-06 20:08:59,090 INFO    SenderThread:30220 [sender.py:_save_file():841] saving file wandb-summary.json with policy end
+2021-08-06 20:09:00,098 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\wandb-summary.json
+2021-08-06 20:09:00,571 DEBUG   HandlerThread:30220 [meta.py:__init__():39] meta init
+2021-08-06 20:09:00,571 DEBUG   HandlerThread:30220 [meta.py:__init__():53] meta init done
+2021-08-06 20:09:00,571 DEBUG   HandlerThread:30220 [meta.py:probe():210] probe
+2021-08-06 20:09:00,586 DEBUG   HandlerThread:30220 [meta.py:_setup_git():200] setup git
+2021-08-06 20:09:00,680 DEBUG   HandlerThread:30220 [meta.py:_setup_git():207] setup git done
+2021-08-06 20:09:00,680 DEBUG   HandlerThread:30220 [meta.py:_save_code():89] save code
+2021-08-06 20:09:00,728 DEBUG   HandlerThread:30220 [meta.py:_save_code():110] save code done
+2021-08-06 20:09:00,728 DEBUG   HandlerThread:30220 [meta.py:_save_patches():127] save patches
+2021-08-06 20:09:00,997 DEBUG   HandlerThread:30220 [meta.py:_save_patches():169] save patches done
+2021-08-06 20:09:00,997 DEBUG   HandlerThread:30220 [meta.py:_save_pip():57] save pip
+2021-08-06 20:09:00,998 DEBUG   HandlerThread:30220 [meta.py:_save_pip():71] save pip done
+2021-08-06 20:09:00,998 DEBUG   HandlerThread:30220 [meta.py:probe():252] probe done
+2021-08-06 20:09:01,001 DEBUG   SenderThread:30220 [sender.py:send():179] send: files
+2021-08-06 20:09:01,001 INFO    SenderThread:30220 [sender.py:_save_file():841] saving file wandb-metadata.json with policy now
+2021-08-06 20:09:01,002 INFO    SenderThread:30220 [sender.py:_save_file():841] saving file code\agar\workspace.py with policy now
+2021-08-06 20:09:01,002 INFO    SenderThread:30220 [sender.py:_save_file():841] saving file diff.patch with policy now
+2021-08-06 20:09:01,007 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: stop_status
+2021-08-06 20:09:01,007 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: stop_status
+2021-08-06 20:09:01,105 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\wandb-metadata.json
+2021-08-06 20:09:01,105 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\diff.patch
+2021-08-06 20:09:01,105 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\output.log
+2021-08-06 20:09:01,106 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\requirements.txt
+2021-08-06 20:09:01,106 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\code\agar\workspace.py
+2021-08-06 20:09:01,106 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\code
+2021-08-06 20:09:01,107 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_created():216] file/dir created: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\code\agar
+2021-08-06 20:09:01,265 INFO    Thread-30 :30220 [upload_job.py:push():117] Skipped uploading C:\Users\User\AppData\Local\Temp\tmprnehf08ywandb\1uldeod2-code/agar/workspace.py
+2021-08-06 20:09:01,775 INFO    Thread-29 :30220 [upload_job.py:push():137] Uploaded file C:\Users\User\AppData\Local\Temp\tmprnehf08ywandb\22617f5p-wandb-metadata.json
+2021-08-06 20:09:01,885 INFO    Thread-31 :30220 [upload_job.py:push():137] Uploaded file C:\Users\User\AppData\Local\Temp\tmprnehf08ywandb\tc1braad-diff.patch
+2021-08-06 20:09:02,793 DEBUG   SenderThread:30220 [sender.py:send():179] send: config
+2021-08-06 20:09:03,121 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\output.log
+2021-08-06 20:09:07,164 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\output.log
+2021-08-06 20:09:09,178 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\output.log
+2021-08-06 20:09:11,198 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\output.log
+2021-08-06 20:09:13,213 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\output.log
+2021-08-06 20:09:15,231 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\output.log
+2021-08-06 20:09:16,262 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: stop_status
+2021-08-06 20:09:16,262 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: stop_status
+2021-08-06 20:09:17,236 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\output.log
+2021-08-06 20:09:19,243 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\output.log
+2021-08-06 20:09:21,256 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\output.log
+2021-08-06 20:09:23,013 DEBUG   SenderThread:30220 [sender.py:send():179] send: history
+2021-08-06 20:09:23,014 DEBUG   SenderThread:30220 [sender.py:send():179] send: summary
+2021-08-06 20:09:23,016 INFO    SenderThread:30220 [sender.py:_save_file():841] saving file wandb-summary.json with policy end
+2021-08-06 20:09:23,262 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\output.log
+2021-08-06 20:09:23,262 INFO    Thread-12 :30220 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\wandb-summary.json
+2021-08-06 20:09:23,816 DEBUG   SenderThread:30220 [sender.py:send():179] send: telemetry
+2021-08-06 20:09:23,817 DEBUG   SenderThread:30220 [sender.py:send():179] send: exit
+2021-08-06 20:09:23,817 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: poll_exit
+2021-08-06 20:09:23,817 INFO    SenderThread:30220 [sender.py:send_exit():287] handling exit code: 0
+2021-08-06 20:09:23,817 INFO    SenderThread:30220 [sender.py:send_exit():295] send defer
+2021-08-06 20:09:23,818 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: poll_exit
+2021-08-06 20:09:23,818 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: defer
+2021-08-06 20:09:23,818 INFO    HandlerThread:30220 [handler.py:handle_request_defer():141] handle defer: 0
+2021-08-06 20:09:23,818 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: defer
+2021-08-06 20:09:23,818 INFO    SenderThread:30220 [sender.py:send_request_defer():304] handle sender defer: 0
+2021-08-06 20:09:23,818 INFO    SenderThread:30220 [sender.py:transition_state():308] send defer: 1
+2021-08-06 20:09:23,819 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: defer
+2021-08-06 20:09:23,819 INFO    HandlerThread:30220 [handler.py:handle_request_defer():141] handle defer: 1
+2021-08-06 20:09:23,868 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: defer
+2021-08-06 20:09:23,869 INFO    SenderThread:30220 [sender.py:send_request_defer():304] handle sender defer: 1
+2021-08-06 20:09:23,869 INFO    SenderThread:30220 [sender.py:transition_state():308] send defer: 2
+2021-08-06 20:09:23,869 DEBUG   SenderThread:30220 [sender.py:send():179] send: stats
+2021-08-06 20:09:23,869 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: defer
+2021-08-06 20:09:23,869 INFO    HandlerThread:30220 [handler.py:handle_request_defer():141] handle defer: 2
+2021-08-06 20:09:23,870 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: defer
+2021-08-06 20:09:23,870 INFO    SenderThread:30220 [sender.py:send_request_defer():304] handle sender defer: 2
+2021-08-06 20:09:23,870 INFO    SenderThread:30220 [sender.py:transition_state():308] send defer: 3
+2021-08-06 20:09:23,870 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: defer
+2021-08-06 20:09:23,870 INFO    HandlerThread:30220 [handler.py:handle_request_defer():141] handle defer: 3
+2021-08-06 20:09:23,871 DEBUG   SenderThread:30220 [sender.py:send():179] send: summary
+2021-08-06 20:09:23,873 INFO    SenderThread:30220 [sender.py:_save_file():841] saving file wandb-summary.json with policy end
+2021-08-06 20:09:23,873 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: defer
+2021-08-06 20:09:23,873 INFO    SenderThread:30220 [sender.py:send_request_defer():304] handle sender defer: 3
+2021-08-06 20:09:23,873 INFO    SenderThread:30220 [sender.py:transition_state():308] send defer: 4
+2021-08-06 20:09:23,873 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: defer
+2021-08-06 20:09:23,873 INFO    HandlerThread:30220 [handler.py:handle_request_defer():141] handle defer: 4
+2021-08-06 20:09:23,874 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: defer
+2021-08-06 20:09:23,874 INFO    SenderThread:30220 [sender.py:send_request_defer():304] handle sender defer: 4
+2021-08-06 20:09:23,920 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: poll_exit
+2021-08-06 20:09:24,149 INFO    SenderThread:30220 [sender.py:transition_state():308] send defer: 5
+2021-08-06 20:09:24,149 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: poll_exit
+2021-08-06 20:09:24,149 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: defer
+2021-08-06 20:09:24,150 INFO    HandlerThread:30220 [handler.py:handle_request_defer():141] handle defer: 5
+2021-08-06 20:09:24,150 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: defer
+2021-08-06 20:09:24,150 INFO    SenderThread:30220 [sender.py:send_request_defer():304] handle sender defer: 5
+2021-08-06 20:09:24,150 INFO    SenderThread:30220 [dir_watcher.py:finish():282] shutting down directory watcher
+2021-08-06 20:09:24,250 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: poll_exit
+2021-08-06 20:09:24,275 INFO    SenderThread:30220 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\config.yaml
+2021-08-06 20:09:24,275 INFO    SenderThread:30220 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\output.log
+2021-08-06 20:09:24,275 INFO    SenderThread:30220 [dir_watcher.py:_on_file_modified():229] file/dir modified: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\wandb-summary.json
+2021-08-06 20:09:24,276 INFO    SenderThread:30220 [dir_watcher.py:finish():312] scan: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files
+2021-08-06 20:09:24,276 INFO    SenderThread:30220 [dir_watcher.py:finish():318] scan save: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\config.yaml config.yaml
+2021-08-06 20:09:24,276 INFO    SenderThread:30220 [dir_watcher.py:finish():318] scan save: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\diff.patch diff.patch
+2021-08-06 20:09:24,276 INFO    SenderThread:30220 [dir_watcher.py:finish():318] scan save: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\output.log output.log
+2021-08-06 20:09:24,277 INFO    SenderThread:30220 [dir_watcher.py:finish():318] scan save: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\requirements.txt requirements.txt
+2021-08-06 20:09:24,279 INFO    SenderThread:30220 [dir_watcher.py:finish():318] scan save: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\wandb-metadata.json wandb-metadata.json
+2021-08-06 20:09:24,279 INFO    SenderThread:30220 [dir_watcher.py:finish():318] scan save: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\wandb-summary.json wandb-summary.json
+2021-08-06 20:09:24,285 INFO    SenderThread:30220 [dir_watcher.py:finish():318] scan save: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\code\agar\workspace.py code\agar\workspace.py
+2021-08-06 20:09:24,285 INFO    SenderThread:30220 [sender.py:transition_state():308] send defer: 6
+2021-08-06 20:09:24,286 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: poll_exit
+2021-08-06 20:09:24,286 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: defer
+2021-08-06 20:09:24,286 INFO    HandlerThread:30220 [handler.py:handle_request_defer():141] handle defer: 6
+2021-08-06 20:09:24,286 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: defer
+2021-08-06 20:09:24,287 INFO    SenderThread:30220 [sender.py:send_request_defer():304] handle sender defer: 6
+2021-08-06 20:09:24,287 INFO    SenderThread:30220 [file_pusher.py:finish():177] shutting down file pusher
+2021-08-06 20:09:24,388 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: poll_exit
+2021-08-06 20:09:24,388 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: poll_exit
+2021-08-06 20:09:24,490 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: poll_exit
+2021-08-06 20:09:24,490 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: poll_exit
+2021-08-06 20:09:24,592 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: poll_exit
+2021-08-06 20:09:24,592 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: poll_exit
+2021-08-06 20:09:24,693 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: poll_exit
+2021-08-06 20:09:24,693 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: poll_exit
+2021-08-06 20:09:24,795 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: poll_exit
+2021-08-06 20:09:24,795 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: poll_exit
+2021-08-06 20:09:24,897 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: poll_exit
+2021-08-06 20:09:24,897 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: poll_exit
+2021-08-06 20:09:24,999 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: poll_exit
+2021-08-06 20:09:24,999 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: poll_exit
+2021-08-06 20:09:25,021 INFO    Thread-33 :30220 [upload_job.py:push():137] Uploaded file D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\output.log
+2021-08-06 20:09:25,026 INFO    Thread-32 :30220 [upload_job.py:push():137] Uploaded file D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\config.yaml
+2021-08-06 20:09:25,041 INFO    Thread-35 :30220 [upload_job.py:push():137] Uploaded file D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\wandb-summary.json
+2021-08-06 20:09:25,080 INFO    Thread-34 :30220 [upload_job.py:push():137] Uploaded file D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\files\requirements.txt
+2021-08-06 20:09:25,101 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: poll_exit
+2021-08-06 20:09:25,101 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: poll_exit
+2021-08-06 20:09:25,203 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: poll_exit
+2021-08-06 20:09:25,203 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: poll_exit
+2021-08-06 20:09:25,289 INFO    Thread-11 :30220 [sender.py:transition_state():308] send defer: 7
+2021-08-06 20:09:25,289 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: defer
+2021-08-06 20:09:25,289 INFO    HandlerThread:30220 [handler.py:handle_request_defer():141] handle defer: 7
+2021-08-06 20:09:25,290 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: defer
+2021-08-06 20:09:25,290 INFO    SenderThread:30220 [sender.py:send_request_defer():304] handle sender defer: 7
+2021-08-06 20:09:25,304 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: poll_exit
+2021-08-06 20:09:25,683 INFO    SenderThread:30220 [sender.py:transition_state():308] send defer: 8
+2021-08-06 20:09:25,684 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: poll_exit
+2021-08-06 20:09:25,684 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: defer
+2021-08-06 20:09:25,684 INFO    HandlerThread:30220 [handler.py:handle_request_defer():141] handle defer: 8
+2021-08-06 20:09:25,684 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: defer
+2021-08-06 20:09:25,684 INFO    SenderThread:30220 [sender.py:send_request_defer():304] handle sender defer: 8
+2021-08-06 20:09:25,685 INFO    SenderThread:30220 [sender.py:transition_state():308] send defer: 9
+2021-08-06 20:09:25,685 DEBUG   SenderThread:30220 [sender.py:send():179] send: final
+2021-08-06 20:09:25,686 DEBUG   SenderThread:30220 [sender.py:send():179] send: footer
+2021-08-06 20:09:25,686 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: defer
+2021-08-06 20:09:25,686 INFO    HandlerThread:30220 [handler.py:handle_request_defer():141] handle defer: 9
+2021-08-06 20:09:25,686 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: defer
+2021-08-06 20:09:25,686 INFO    SenderThread:30220 [sender.py:send_request_defer():304] handle sender defer: 9
+2021-08-06 20:09:25,785 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: poll_exit
+2021-08-06 20:09:25,785 DEBUG   SenderThread:30220 [sender.py:send_request():193] send_request: poll_exit
+2021-08-06 20:09:25,785 INFO    SenderThread:30220 [file_pusher.py:join():182] waiting for file pusher
+2021-08-06 20:09:25,787 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: get_summary
+2021-08-06 20:09:25,789 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: sampled_history
+2021-08-06 20:09:25,790 DEBUG   HandlerThread:30220 [handler.py:handle_request():124] handle_request: shutdown
+2021-08-06 20:09:25,790 INFO    HandlerThread:30220 [handler.py:finish():658] shutting down handler
+2021-08-06 20:09:26,696 INFO    WriterThread:30220 [datastore.py:close():288] close: D:\ML Projects\Agar.io-bot\wandb\run-20210806_200857-25mebkil\run-25mebkil.wandb
+2021-08-06 20:09:26,791 INFO    SenderThread:30220 [sender.py:finish():947] shutting down sender
+2021-08-06 20:09:26,791 INFO    SenderThread:30220 [file_pusher.py:finish():177] shutting down file pusher
+2021-08-06 20:09:26,791 INFO    SenderThread:30220 [file_pusher.py:join():182] waiting for file pusher
+2021-08-06 20:09:26,793 INFO    MainThread:30220 [internal.py:handle_exit():78] Internal process exited
