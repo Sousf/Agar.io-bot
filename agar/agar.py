@@ -31,7 +31,7 @@ MAX_SPEED = 600
 
 # controls the size for agars
 MIN_AGAR_MASS = 20
-MAX_AGAR_MASS = 22500
+MAX_AGAR_MASS = 2000
 
 BASE_MASS_LOSS_RATE = 0.02 # lose a 50th of your size per second
 MASS_TO_SIZE_EXPONENT = 0.75 # realistically this should be 0.5

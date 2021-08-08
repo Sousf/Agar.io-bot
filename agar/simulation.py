@@ -25,7 +25,7 @@ DEFAULT_ENEMY_RESPAWN_TIME = 0.1
 DEFAULT_NUM_VIRUSES = 0
 DEFAULT_VIRUS_SPAWN_RATE = 0.000001 # viruses per second
 DEFAULT_NUM_BLOBS = 250
-DEFAULT_BLOB_SPAWN_RATE = 0.05 # blob batches per second
+DEFAULT_BLOB_SPAWN_RATE = 1 # blob batches per second
 BLOB_BATCH_SIZE = 10
 DEFAULT_FRAME_RATE = 60
 DEFAULT_RUN_TIME = -1
@@ -59,7 +59,6 @@ class Simulation():
         self.caption = caption
 
         # sets the base parameters
-        self.player_is_active = player
         self.virus_spawn_rate = virus_spawn_rate
         self.blob_spawn_rate = blob_spawn_rate
         self.map_dimensions = map_dimensions
@@ -86,7 +85,10 @@ class Simulation():
 
         # spawn the player if necessary
         self.agars = []
-        if (player): self.spawn_player()
+        if (player): 
+            self.spawn_player()
+        else:
+            self.spawn_ai()
         Debug.simulation("Spawned a player")
         
         # spawns the agars to be used in the simulation
@@ -112,6 +114,13 @@ class Simulation():
     def spawn_player(self) -> None:
         spawn_pos = Vector(self.map_dimensions[0] / 2, self.map_dimensions[1] / 2)
         player = Player(self, int_id = 0, position = spawn_pos, can_think = True) 
+        self.agars.append(player)  
+        return 
+
+    # spawns the player to be used in the simulation
+    def spawn_ai(self) -> None:
+        spawn_pos = Vector(self.map_dimensions[0] / 2, self.map_dimensions[1] / 2)
+        player = SmartBot(self, int_id = 0, position = spawn_pos, can_think = True) 
         self.agars.append(player)  
         return 
 

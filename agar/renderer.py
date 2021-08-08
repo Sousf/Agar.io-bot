@@ -68,10 +68,9 @@ class Renderer():
             self.render_agar(agar, origin)
             if (agar.grid != None):
                 self.render_grid(agar.grid)
-             # change this to display whatever info we want
-             # e.g. agar's id, size, number of eaten things, speed, current position etc
-            # self.add_text(agar, str(agar.id))
-            # 
+                # change this to display whatever info we want
+                # e.g. agar's id, size, number of eaten things, speed, current position etc  
+        self.add_text(self.simulation.agars[0], str(round(self.simulation.agars[0].mass)))
         game.display.update()
         return True
 
@@ -79,7 +78,7 @@ class Renderer():
         # game.draw.rect(surface = self.window, color = self.color_gradient[2],  rect = [500, 600, 700, 800], )
         for row in grid:
             for box in row:
-                game.draw.rect(surface = self.window, color = self.color_gradient[1],  rect = box, width = 2 )
+                game.draw.rect(surface = self.window, color = self.color_gradient[1], rect = box, width = 2 )
                 # game.draw.circle(surface = self.window, color = self.color_gradient[2], center = box.center, radius = 100)
             #grid.append(row)
         return None
@@ -102,7 +101,7 @@ class Renderer():
     def add_text(self, agar : Agar, text : str) -> None:
         color = Color.as_hex(self.color_gradient[2])
         text_surface, text_rect  = self.get_text_object(text, game.Color(color))
-        text_rect.center=agar.rect.center
+        text_rect.center=(self.center.x, self.center.y)
         self.window.blit(text_surface, text_rect)
         return None
 

@@ -8,7 +8,7 @@ from vectors import Vector
 from dataclasses import dataclass
 import pygame
 
-RENDER_ENV = False
+RENDER_ENV = True
 clock = pygame.time.Clock()
 
 
@@ -20,7 +20,6 @@ class Environment(gym.Env):
         ''' Initialising JUST the environment '''
         
         self.logger = []
-        self.epoch_count = 0
         
         self._seed()
         
@@ -67,8 +66,20 @@ class Environment(gym.Env):
          
         obs = self._next_observation()
 
-        # while (1):
-        #   pass
+        print(obs)
+        print('Mass:', int(self.last_mass))
+        
+        print('Agars')
+        for agar in self.simulation.agars:
+            print(f'x: {int(agar.position.x):<5}, mass: {int(agar.mass):<5}')
+            
+        print('Blobs')
+        for blob in self.simulation.blobs:
+            if 3400 < blob.position.x < 4600:
+                print(f'x: {int(blob.position.x):<5}, mass: {int(blob.mass):<5}')
+        
+        from time import sleep
+        sleep(100000)
 
         self.simulation.update()
 
@@ -79,16 +90,14 @@ class Environment(gym.Env):
         self.t += 1
         return obs, reward, done, {'Step': self.t}
     
-    def reset(self, init=False, rand_start=True):
+    def reset(self, init=False):
         '''Reset everything as if we just started (for a new episode)
            Involves setting up a new simulation etc. '''
         if not init:
             self.simulation.end()
         
-        self.simulation = Simulation(render=RENDER_ENV, player=True, map_dimensions=(DEFAULT_MAP_WIDTH, 0))
+        self.simulation = Simulation(render=RENDER_ENV, player=False, map_dimensions=(DEFAULT_MAP_WIDTH, 0))
         
-        self.epoch_count += 1
-
         self.player = self.simulation.agars[0]
         self.last_mass = MIN_AGAR_MASS
         self.max_mass = self.last_mass

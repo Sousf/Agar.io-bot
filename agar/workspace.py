@@ -15,7 +15,7 @@ from stable_baselines3.common.callbacks import BaseCallback
 #from stable_baselines3.common.results_plotter import load_results, ts2xy
 
 # --- GLOBAL --- #
-TIME_STEPS = 200_000
+TIME_STEPS = 10_000
 
 # --- MAIN --- #
 def main():
@@ -29,6 +29,7 @@ def main():
     policy_kwargs = dict(net_arch=[dict(pi=[10, 10], vf=[10, 10])])
     # initalize 
     model = A2C('MlpPolicy', env, verbose=1, policy_kwargs=policy_kwargs)
+
 
     # training
     model.learn(total_timesteps=TIME_STEPS)
