@@ -24,9 +24,9 @@ DEFAULT_NUM_BOTS = 16
 DEFAULT_ENEMY_RESPAWN_TIME = 0.1
 DEFAULT_NUM_VIRUSES = 0
 DEFAULT_VIRUS_SPAWN_RATE = 0.000001 # viruses per second
-DEFAULT_NUM_BLOBS = 50
+DEFAULT_NUM_BLOBS = 250
 DEFAULT_BLOB_SPAWN_RATE = 0.05 # blob batches per second
-BLOB_BATCH_SIZE = 1
+BLOB_BATCH_SIZE = 10
 DEFAULT_FRAME_RATE = 60
 DEFAULT_RUN_TIME = -1
 DEFAULT_MAP_HEIGHT = 4000
@@ -52,7 +52,8 @@ class Simulation():
                  map_dimensions : tuple = (DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT),
                  window_dimensions : tuple = (DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT),
                  frame_rate : float = DEFAULT_FRAME_RATE, 
-                 run_time : float = DEFAULT_RUN_TIME
+                 run_time : float = DEFAULT_RUN_TIME,
+                 internal_update = False
                  ):
 
         self.caption = caption
@@ -71,6 +72,7 @@ class Simulation():
         self.delayed_end = None
         self.render = render
         self.clock = game.time.Clock()
+        self.internal_update = internal_update
 
         # used for collisions
         # self.grid = Grid(0, width, height, 10)
@@ -109,7 +111,7 @@ class Simulation():
     # spawns the player to be used in the simulation
     def spawn_player(self) -> None:
         spawn_pos = Vector(self.map_dimensions[0] / 2, self.map_dimensions[1] / 2)
-        player = SmartBot(self, int_id = 0, position = spawn_pos, can_think = True) 
+        player = Player(self, int_id = 0, position = spawn_pos, can_think = True) 
         self.agars.append(player)  
         return 
 
@@ -168,6 +170,9 @@ class Simulation():
         self.update_rects()
         if (self.render):
             self.renderer.start()
+
+        if (self.internal_update):
+            self.update()
         return
 
     # shut down the simulation

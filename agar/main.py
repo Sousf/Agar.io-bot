@@ -49,7 +49,7 @@ class Menu():
 
     # runs a player controlled agar simulation with a few 'dumb' bots
     def player_with_bots(self) -> None:
-        self.sim = Simulation(caption = "Player Simulation", player = True)
+        self.sim = Simulation(render=True, player=True, map_dimensions=(8000, 0), internal_update = True)
         while (self.sim.is_running):
             self.sim.update()
             self.sim.clock.tick(self.sim.frame_rate)
