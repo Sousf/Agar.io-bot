@@ -20,7 +20,7 @@ from renderer import Renderer
 """ MAGIC VARIABLES """
 # default values for simulation (if not specified on initialization)
 RENDER = True
-DEFAULT_NUM_BOTS = 16
+DEFAULT_NUM_BOTS = 1
 DEFAULT_ENEMY_RESPAWN_TIME = 0.1
 DEFAULT_NUM_VIRUSES = 0
 DEFAULT_VIRUS_SPAWN_RATE = 0.000001 # viruses per second
@@ -73,6 +73,8 @@ class Simulation():
         self.clock = game.time.Clock()
         self.internal_update = internal_update
 
+        self.switch = 2 * (round(random.random()) - 0.5)
+
         # used for collisions
         # self.grid = Grid(0, width, height, 10)
 
@@ -113,7 +115,7 @@ class Simulation():
     # spawns the player to be used in the simulation
     def spawn_player(self) -> None:
         spawn_pos = Vector(self.map_dimensions[0] / 2, self.map_dimensions[1] / 2)
-        player = Player(self, int_id = 0, position = spawn_pos, can_think = True) 
+        player = Player(self, int_id = 0, position = spawn_pos, can_think = True)
         self.agars.append(player)  
         return 
 
@@ -131,11 +133,13 @@ class Simulation():
             # picks out a position to spawn the agar at
             spawn_pos = Vector.random_vector_within_bounds((0, self.map_dimensions[0]), (0, self.map_dimensions[1]))
             # constructs the agar object
-            bot = DumbBot(self, int_id = i, position = spawn_pos, can_think = True, mass = 50)
+            spawn_pos = Vector(  self.map_dimensions[0] / 2 + (self.switch * 300), 0)
+
+            bot = DumbBot(self, int_id = i, position = spawn_pos, can_think = True, mass = 500)
             # appends it to the list of agars in the simulation
             self.agars.append(bot)
             
-        self.create_timer(time_interval = (1 / DEFAULT_ENEMY_RESPAWN_TIME), method = self.spawn_bots)
+        # self.create_timer(time_interval = (1 / DEFAULT_ENEMY_RESPAWN_TIME), method = self.spawn_bots)
 
         return 
     
@@ -161,15 +165,18 @@ class Simulation():
         # itterates through the number of blobs to be spawned
         for i in range(num_blobs):
             # picks out a position to spawn the agar at
-            spawn_pos = Vector.random_vector_within_bounds((0, self.map_dimensions[0]), (0, self.map_dimensions[1]))
+            # spawn_pos = Vector.random_vector_within_bounds((0, self.map_dimensions[0]), (0, self.map_dimensions[1]))
             # constructs the blob object
+            # spawn_pos = Vector((self.map_dimensions[0] / 2) - 100, 0)
+            spawn_pos = Vector( (self.map_dimensions[0] / 2) * (1 - self.switch * i / num_blobs), 0)
+
             blob = Blob(self, int_id = i, position = spawn_pos)
             # appends it to the list of bobs in the simulation
             self.blobs.append(blob)
 
         # create the timer for the next blob to spawn
         # within the simulation thread
-        self.create_timer(time_interval = (1 / self.blob_spawn_rate), method = self.spawn_blobs)
+        # self.create_timer(time_interval = (1 / self.blob_spawn_rate), method = self.spawn_blobs)
         return   
 
     """ CONTROLS """

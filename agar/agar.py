@@ -49,7 +49,7 @@ VIRUS_POP_NUMBER = 7
 
 # controls the size for blobs
 MIN_BLOB_MASS = 1
-MAX_BLOB_MASS = 3
+MAX_BLOB_MASS = 1
 BLOB_COLORS = [(255, 0, 0), (255)]
 
 # all time controls relative to a frame rate of 60
@@ -155,13 +155,13 @@ class Agar():
         # eject = self.decide_to_eject()
 
         # itterate through the children
-        for child in self.children:
-            if (child.can_think):
-                child.target_point = self.target_point
-                if (split):
-                    child.split()
-                if (eject):
-                    child.eject()
+        # for child in self.children:
+        #   if (child.can_think):
+        #        child.target_point = self.target_point
+        #        if (split):
+        #            child.split()
+        #        if (eject):
+        #            child.eject()
 
         return True
 
@@ -185,7 +185,7 @@ class Agar():
 
     # update the size lost based on time passed since last update
     def update_size(self, time_interval : float = 0) -> float:
-        self.mass = max(MIN_AGAR_MASS, self.mass - (self.mass * self.size_loss_rate * time_interval));
+        self.mass = max(MIN_AGAR_MASS, self.mass - (self.mass * self.size_loss_rate * time_interval))
         self.mass = min(MAX_AGAR_MASS, self.mass)
         # check whether the agar is over the splitting/ejecting threshold
         return self.mass
@@ -400,7 +400,7 @@ class Agar():
         _split_these = [self]
         for i in range(4):
             for member in split_these:
-                clone = member.no_delay_split();
+                clone = member.no_delay_split()
                 if (clone != None):
                     _split_these.append(clone)
             split_these = _split_these
@@ -488,7 +488,7 @@ class Agar():
     # merging
     def enable_merge(self):
         self.can_merge = True
-        self.delayed_merge = False;
+        self.delayed_merge = False
         return
 
     # splitting
@@ -600,7 +600,7 @@ class SmartBot(Agar):
                 # Check for blobs (count)
                 for blob in self.simulation.blobs:
                     if (box.colliderect(blob.rect)):
-                        obs[i, j, 1] += 1
+                        obs[i, j, 1] += 1 #blob.mass ################################################ CHANGE TO MASS?
 
         # Rescale channels to be [0, 1]
         # Enemies (/MAX_AGAR_MASS)
@@ -608,6 +608,9 @@ class SmartBot(Agar):
 
         # Blobs (/50)
         obs[:, :, 1] /= 50
+
+        # Agent mass
+        obs[0, 0, 2] = self.mass / MAX_AGAR_MASS
 
         return
 
@@ -621,18 +624,19 @@ class SmartBot(Agar):
         '''
         self.grid = []
 
-        box_height = self.simulation.vision_dimensions[1] / dimensions[0]
-        box_width = self.simulation.vision_dimensions[0] / dimensions[1]
+        box_height = self.simulation.vision_dimensions[1] / dimensions[0] # - self.simulation.renderer.focus.position)
+        box_width = self.simulation.vision_dimensions[0] / dimensions[1] #+ self.position.x # - self.simulation.renderer.focus.position)
         for i in range(dimensions[0]):
             row = []
             for j in range(dimensions[1]):
-                rect = game.Rect((j * box_width, i * box_height), ( (j+1) * box_width, (i+1) * box_height) )
+                #print("HEREEEE", i , j * box_width , (j+1) * box_width) 
+                # Rect((left, top), (width, height)) 
+                rect = game.Rect( (j * box_width + self.position.x - (self.simulation.vision_dimensions[0] / 2), i * box_height + + self.position.y - (self.simulation.vision_dimensions[1] / 2)), (box_width, box_height) )
                 row.append(rect)
             self.grid.append(row)
 
         #rect = game.Rect( self.position.x - 300, self.position.y - 300, self.position.x + 300, self.position.y + 300)
         #game.draw.rect(surface = self.simulation.renderer.window, color = self.color_gradient[1],  rect = rect)
-
 
         return
 

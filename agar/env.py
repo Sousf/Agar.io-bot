@@ -2,11 +2,13 @@ import gym
 from gym import spaces
 from gym.utils import seeding
 import numpy as np
-from simulation import Simulation, DEFAULT_MAP_WIDTH
+from simulation import Simulation, DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT
 from agar import MAX_CURSOR_RANGE, SmartBot, MIN_AGAR_MASS
 from vectors import Vector
 from dataclasses import dataclass
 import pygame
+from time import sleep
+
 
 RENDER_ENV = True
 clock = pygame.time.Clock()
@@ -51,6 +53,8 @@ class Environment(gym.Env):
     def step(self, action):
         ''' Updates environment with action taken, returns new state and reward from state transition '''    
 
+        self.simulation.update()
+
         # Take action
         self._take_action(action)
         reward = 0
@@ -59,6 +63,7 @@ class Environment(gym.Env):
         if self.player.is_eaten:
             #reward = -100 # 0
             done = True
+            self.player.mass = 0
         else:
             done = False
             #reward = 5*(self.player.mass - self.last_mass) + 0.01
@@ -66,28 +71,28 @@ class Environment(gym.Env):
          
         obs = self._next_observation()
 
-        print(obs)
-        print('Mass:', int(self.last_mass))
+        # print(obs)
+        # print('Mass:', int(self.last_mass))
         
-        print('Agars')
-        for agar in self.simulation.agars:
-            print(f'x: {int(agar.position.x):<5}, mass: {int(agar.mass):<5}')
+        # print('Agars')
+        # for agar in self.simulation.agars:
+        #    print(f'x: {int(agar.rect.center[0]):<5}, mass: {int(agar.mass):<5}')
             
-        print('Blobs')
-        for blob in self.simulation.blobs:
-            if 3400 < blob.position.x < 4600:
-                print(f'x: {int(blob.position.x):<5}, mass: {int(blob.mass):<5}')
-        
-        from time import sleep
-        sleep(100000)
+        # print('Blobs')
+        # for blob in self.simulation.blobs:
+        #    print(f'x: {int(blob.rect.center[0]):<5}, mass: {int(blob.mass):<5}')
 
-        self.simulation.update()
+        # self.simulation.renderer.render_frame
+        # sleep(100000)
 
         if self.player.mass > self.max_mass:
             reward += self.player.mass - self.max_mass # 0
             self.max_mass = self.player.mass
 
         self.t += 1
+
+        if done:
+            print('DONE!')
         return obs, reward, done, {'Step': self.t}
     
     def reset(self, init=False):
@@ -101,6 +106,7 @@ class Environment(gym.Env):
         self.player = self.simulation.agars[0]
         self.last_mass = MIN_AGAR_MASS
         self.max_mass = self.last_mass
+        self.t = 0
 
         obs = self._next_observation() 
         return obs

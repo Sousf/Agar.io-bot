@@ -16,7 +16,7 @@ class Vector():
 
     # adds the passed vector to this vector
     def __iadd__(self, v):
-        self.x = self.x + v.x 
+        self.x = self.x + v.x
         self.y = self.y + v.y
         return self
 
@@ -43,14 +43,14 @@ class Vector():
     # returns the scalar division of this vector and the passed scalar
     def __truediv__(self, scalar : float = 1):
         if (scalar == 0):
-            raise ValueError("Cannot divide by 0");
-            return self;
+            raise ValueError("Cannot divide by 0")
+            return self
         return Vector(self.x / scalar, self.y / scalar)
 
     # scales this vector by the scalar
     @property
     def as_tuple(self):
-        return (self.x, self.y);
+        return (self.x, self.y)
 
     # generates a random direction, normalized to the unit circle
     def random_normalized_vector():

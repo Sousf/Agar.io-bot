@@ -67,18 +67,19 @@ class Renderer():
         for agar in self.simulation.agars:
             self.render_agar(agar, origin)
             if (agar.grid != None):
-                self.render_grid(agar.grid)
+                self.render_grid(agar, agar.grid)
                 # change this to display whatever info we want
                 # e.g. agar's id, size, number of eaten things, speed, current position etc  
-        self.add_text(self.simulation.agars[0], str(round(self.simulation.agars[0].mass)))
+            self.add_text(agar, str(round(agar.mass)))
         game.display.update()
         return True
 
-    def render_grid(self, grid): 
+    def render_grid(self, agar, grid): 
         # game.draw.rect(surface = self.window, color = self.color_gradient[2],  rect = [500, 600, 700, 800], )
-        for row in grid:
-            for box in row:
-                game.draw.rect(surface = self.window, color = self.color_gradient[1], rect = box, width = 2 )
+        for i, row in enumerate(grid):
+            for j, box in enumerate(row):
+                newRect = game.Rect( (box.left - agar.position.x + (self.simulation.vision_dimensions[0] / 2), box.top - agar.position.y + (self.simulation.vision_dimensions[1] / 2)), (box.width, box.height) )
+                game.draw.rect(surface = self.window, color = self.color_gradient[1], rect = newRect, width = 2 )
                 # game.draw.circle(surface = self.window, color = self.color_gradient[2], center = box.center, radius = 100)
             #grid.append(row)
         return None
