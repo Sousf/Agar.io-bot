@@ -29,7 +29,7 @@ def main():
     policy_kwargs = dict(net_arch=[dict(pi=[10, 10], vf=[10, 10])])
     # policy_kwargs = dict(net_arch=[10, 10])
     # initalize 
-    model = A2C('MlpPolicy', env, verbose=1 , policy_kwargs=policy_kwargs)
+    model = A2C('MlpPolicy', env, verbose=0 , policy_kwargs=policy_kwargs)
 
     # training
     model.learn(total_timesteps=TIME_STEPS)

@@ -16,6 +16,7 @@ from vectors import Vector
 from grid import Grid
 from debug import Debug
 from renderer import Renderer
+from checkSwitch import Switch
 
 """ MAGIC VARIABLES """
 # default values for simulation (if not specified on initialization)
@@ -53,11 +54,10 @@ class Simulation():
                  window_dimensions : tuple = (DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT),
                  frame_rate : float = DEFAULT_FRAME_RATE, 
                  run_time : float = DEFAULT_RUN_TIME,
-                 internal_update = False
+                 internal_update = False,
                  ):
 
         self.caption = caption
-
         # sets the base parameters
         self.virus_spawn_rate = virus_spawn_rate
         self.blob_spawn_rate = blob_spawn_rate
@@ -73,8 +73,7 @@ class Simulation():
         self.clock = game.time.Clock()
         self.internal_update = internal_update
 
-        self.switch = 2 * (round(random.random()) - 0.5)
-
+        # self.switch = 2 * (round(random.random()) - 0.5)
         # used for collisions
         # self.grid = Grid(0, width, height, 10)
 
@@ -86,7 +85,11 @@ class Simulation():
            self.renderer = Renderer(self, width = window_dimensions[0], height = window_dimensions[1])
 
         # spawn the player if necessary
+        # self.switch = 1
         self.agars = []
+        self.switch = Switch.get_switch()
+
+
         if (player): 
             self.spawn_player()
         else:
