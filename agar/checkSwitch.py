@@ -9,6 +9,3 @@ class Switch:
         else:
             Switch.switch = 1
             return Switch.switch
-
-
-    

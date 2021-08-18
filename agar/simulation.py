@@ -89,7 +89,6 @@ class Simulation():
         self.agars = []
         self.switch = Switch.get_switch()
 
-
         if (player): 
             self.spawn_player()
         else:

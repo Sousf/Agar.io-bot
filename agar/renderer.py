@@ -102,7 +102,7 @@ class Renderer():
     def add_text(self, agar : Agar, text : str) -> None:
         color = Color.as_hex(self.color_gradient[2])
         text_surface, text_rect  = self.get_text_object(text, game.Color(color))
-        text_rect.center=(self.center.x, self.center.y)
+        text_rect.center=(agar.position.x - self.focus.position.x + self.center.x, agar.position.y - self.focus.position.y + self.center.y)
         self.window.blit(text_surface, text_rect)
         return None
 
