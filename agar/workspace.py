@@ -16,15 +16,17 @@ from stable_baselines3.common.policies import ActorCriticPolicy
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.callbacks import BaseCallback
 from stable_baselines3.common.monitor import Monitor
+from torch.nn import ReLU
 
 #from stable_baselines3.common.schedules import ConstantSchedule
 #from stable_baselines3.common.results_plotter import load_results, ts2xy
 
 # --- GLOBAL --- #
-TIME_STEPS = 1_000_000
+TIME_STEPS = 3_000_000
 PARAMETERS = {
-    'learning_rate': [0.001, 0.0001, 0.00001],
-    'policy_kwargs': [dict(net_arch=[dict(pi=n_layers*[size], vf=n_layers*[size])]) for size in [10, 50] for n_layers in [2, 3]]
+    'learning_rate': [1e-04, 1e-05, 1e-06, 1e-07],
+    'policy_kwargs': [dict(activation_fn=ReLU,net_arch=[dict(pi=arch, vf=arch)]) for arch in [[50, 50, 50], [100, 100, 100], 
+                                                                                              [50, 50, 50, 50], [100, 100, 100, 100]]]
 }
 
 # --- MAIN --- #
@@ -35,7 +37,7 @@ def main():
 
     # initialize an environment
     # env = make_vec_env(Environment, n_envs=1, monitor_dir=log_dir)
-    env = Monitor(Environment(), filename=log_dir+"test_log", info_keywords=("step", "player mass", "player max mass", "blobs", "agars") + tuple(PARAMETERS.keys()))
+    env = Monitor(Environment(), filename=log_dir+"test2_bot_log", info_keywords=("step", "player mass", "player max mass", "blobs", "agars") + tuple(PARAMETERS.keys()))
 
     # All parameters to try
     # product('ABCD', 'xy') --> Ax Ay Bx By Cx Cy Dx Dy
@@ -44,7 +46,7 @@ def main():
     # param_combs = [dict(zip(parPARAMETERSameters.keys(), values)) for values in list(product(*PARAMETERS.values()))]
 
     # PARAMETERS.values = the different hyper parameter values e.g. learning rate values, the different network architectures
-    
+
     parameter_combinations = []
     for values in list(product(*PARAMETERS.values())):
         parameter_combinations.append(dict(zip(PARAMETERS.keys(), values)))

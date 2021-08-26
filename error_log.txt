@@ -1,0 +1,49 @@
+list index out of range
+list index out of range
+list index out of range
+list index out of range
+list index out of range
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+'Environment' object has no attribute 'mass'
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.
+Error: net_arch[-1]['pi'] must contain a list of integers.

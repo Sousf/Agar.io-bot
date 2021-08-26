@@ -10,7 +10,7 @@ import pygame
 from time import sleep
 
 
-RENDER_ENV = False
+RENDER_ENV = True
 clock = pygame.time.Clock()
 
 
@@ -49,6 +49,7 @@ class Environment(gym.Env):
         ''' Takes in an action vector (which exists in the action_space) and enacts that action on the state
             Translates RL agent's action into the simulation '''
         v = Vector(action[0] * MAX_CURSOR_RANGE + self.player.position.x, self.player.position.y)
+        # v = Vector(-MAX_CURSOR_RANGE + self.player.position.x, self.player.position.y)
         self.player.target_point = v
         
     def step(self, action):
@@ -69,6 +70,8 @@ class Environment(gym.Env):
             done = False
             #reward = 5*(self.player.mass - self.last_mass) + 0.01
             self.last_mass = self.player.mass
+
+        # print(self.player.mass, end=' ')
          
         obs = self._next_observation()
 
@@ -109,7 +112,9 @@ class Environment(gym.Env):
     def reset(self, first_sim=False):
         '''Reset everything as if we just started (for a new episode)
            Involves setting up a new simulation etc. '''
+
         if not first_sim:
+            # print(self.max_mass)
             self.simulation.end()
         
         self.simulation = Simulation(render=RENDER_ENV, player=False, map_dimensions=(DEFAULT_MAP_WIDTH, 0))
