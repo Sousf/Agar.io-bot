@@ -21,12 +21,12 @@ from checkSwitch import Switch
 """ MAGIC VARIABLES """
 # default values for simulation (if not specified on initialization)
 RENDER = True
-DEFAULT_NUM_BOTS = 1
+DEFAULT_NUM_BOTS = 5
 DEFAULT_ENEMY_RESPAWN_TIME = 0.1
 DEFAULT_NUM_VIRUSES = 0
 DEFAULT_VIRUS_SPAWN_RATE = 0.000001 # viruses per second
 DEFAULT_NUM_BLOBS = 250
-DEFAULT_BLOB_SPAWN_RATE = 1 # blob batches per second
+DEFAULT_BLOB_SPAWN_RATE = 5 # blob batches per second
 BLOB_BATCH_SIZE = 10
 DEFAULT_FRAME_RATE = 60
 DEFAULT_RUN_TIME = -1
@@ -135,14 +135,15 @@ class Simulation():
             # picks out a position to spawn the agar at
             spawn_pos = Vector.random_vector_within_bounds((0, self.map_dimensions[0]), (0, self.map_dimensions[1]))
             # constructs the agar object
-            spawn_pos = Vector(  self.map_dimensions[0] / 2 + (self.switch * 300), 0)
+            # switch = -1
+            # spawn_pos = Vector(self.map_dimensions[0] / 2 + (switch * 300), 0)
 
-            bot = DumbBot(self, int_id = i, position = spawn_pos, can_think = True, mass = 500)
+            bot = DumbBot(self, int_id = i, position = spawn_pos, can_think = True, mass = random.randint(20, 100));
             # appends it to the list of agars in the simulation
             self.agars.append(bot)
             
-        # self.create_timer(time_interval = (1 / DEFAULT_ENEMY_RESPAWN_TIME), method = self.spawn_bots)
-
+        self.create_timer(time_interval = (1 / DEFAULT_ENEMY_RESPAWN_TIME), method = self.spawn_bots)
+            # pass
         return 
     
     # spawns the viruses to be used in the simulation
@@ -167,10 +168,10 @@ class Simulation():
         # itterates through the number of blobs to be spawned
         for i in range(num_blobs):
             # picks out a position to spawn the agar at
-            # spawn_pos = Vector.random_vector_within_bounds((0, self.map_dimensions[0]), (0, self.map_dimensions[1]))
+            spawn_pos = Vector.random_vector_within_bounds((0, self.map_dimensions[0]), (0, self.map_dimensions[1]))
             # constructs the blob object
             # spawn_pos = Vector((self.map_dimensions[0] / 2) - 100, 0)
-            spawn_pos = Vector( (self.map_dimensions[0] / 2) * (1 - self.switch * i / num_blobs), 0)
+            # spawn_pos = Vector( (self.map_dimensions[0] / 2) * (1 - self.switch * i / num_blobs), 0)
 
             blob = Blob(self, int_id = i, position = spawn_pos)
             # appends it to the list of bobs in the simulation
@@ -178,7 +179,7 @@ class Simulation():
 
         # create the timer for the next blob to spawn
         # within the simulation thread
-        # self.create_timer(time_interval = (1 / self.blob_spawn_rate), method = self.spawn_blobs)
+        self.create_timer(time_interval = (1 / self.blob_spawn_rate), method = self.spawn_blobs)
         return   
 
     """ CONTROLS """

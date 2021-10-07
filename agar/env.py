@@ -10,14 +10,14 @@ import pygame
 from time import sleep
 
 
-RENDER_ENV = True
+RENDER_ENV = False
 clock = pygame.time.Clock()
 
 
 class Environment(gym.Env):  
     # required for stable baselines 
     metadata = { 'render.modes': ['human'] }
-    MAX_EPISODE_TIMESTEPS = 3000
+    MAX_EPISODE_TIMESTEPS = 10_000
     
     def __init__(self):
         ''' Initialising JUST the environment '''
@@ -59,43 +59,14 @@ class Environment(gym.Env):
 
         # Take action
         self._take_action(action)
-        reward = 0
-
-        # Check if simulation is over (Did we die?)
-        if self.player.is_eaten:
-            #reward = -100 # 0
-            done = True
-            self.player.mass = 0
-        else:
-            done = False
-            #reward = 5*(self.player.mass - self.last_mass) + 0.01
-            self.last_mass = self.player.mass
-
-        # print(self.player.mass, end=' ')
          
         obs = self._next_observation()
 
-        # print(obs)
-        # print('Mass:', int(self.last_mass))
-        
-        # print('Agars')
-        # for agar in self.simulation.agars:
-        #    print(f'x: {int(agar.rect.center[0]):<5}, mass: {int(agar.mass):<5}')
-            
-        # print('Blobs')
-        # for blob in self.simulation.blobs:
-        #    print(f'x: {int(blob.rect.center[0]):<5}, mass: {int(blob.mass):<5}')
-
-        # self.simulation.renderer.render_frame
-        # sleep(100000)
-
-        if (self.player.mass > self.max_mass):
-            reward += self.player.mass - self.max_mass # 0
-            self.max_mass = self.player.mass
+        reward, done = self.get_reward()
 
         self.t += 1
-        if self.t >= self.MAX_EPISODE_TIMESTEPS:    
-            done = True
+        # if self.t >= self.MAX_EPISODE_TIMESTEPS:    
+        #    done = True
 
         log_dict = { 
             "step": self.t, 
@@ -108,7 +79,32 @@ class Environment(gym.Env):
             log_dict = {**log_dict, **self.parameter_combination}
             
         return obs, reward, done, log_dict 
-    
+
+    def get_reward(self):
+        ''' Gets the reward for the current timestep '''
+        reward = 0
+        
+        # Check if simulation is over (Did we die?)
+        if self.player.is_eaten:
+            done = True
+            self.player.mass = 0
+            self.max_mass = self.player.mass
+        else:
+            done = False
+            #reward = 5*(self.player.mass - self.last_mass) + 0.01
+
+        # Originally was - self.max_mass
+        reward += self.player.mass - self.last_mass #self.max_mass
+        self.last_mass = self.player.mass
+
+        # if (reward > 5):
+        #     print(reward, end='\n')
+
+        if (self.player.mass > self.max_mass):
+             self.max_mass = self.player.mass
+        
+        return reward, done
+
     def reset(self, first_sim=False):
         '''Reset everything as if we just started (for a new episode)
            Involves setting up a new simulation etc. '''
