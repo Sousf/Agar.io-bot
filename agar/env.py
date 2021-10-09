@@ -10,9 +10,8 @@ import pygame
 from time import sleep
 
 
-RENDER_ENV = False
+RENDER_ENV = True
 clock = pygame.time.Clock()
-
 
 class Environment(gym.Env):  
     # required for stable baselines 
@@ -26,10 +25,10 @@ class Environment(gym.Env):
         self._seed()
         
         # define the action space dimensions
-        self.n_grid_rows = 1
-        self.n_grid_cols = 10
+        self.n_grid_rows = 3
+        self.n_grid_cols = 4
         self.n_channels = 2 + 1 # (enemies, blobs), info
-        self.action_space = spaces.Box(low=-1, high=1, shape = (1, ))
+        self.action_space = spaces.Box(low=-1, high=1, shape = (2, ))
         self.parameter_combination = None
 
         # define the observation space dimensions
@@ -48,9 +47,8 @@ class Environment(gym.Env):
     def _take_action(self, action) -> None:
         ''' Takes in an action vector (which exists in the action_space) and enacts that action on the state
             Translates RL agent's action into the simulation '''
-        v = Vector(action[0] * MAX_CURSOR_RANGE + self.player.position.x, self.player.position.y)
-        # v = Vector(-MAX_CURSOR_RANGE + self.player.position.x, self.player.position.y)
-        self.player.target_point = v
+        new_target_point = Vector(action[0] * MAX_CURSOR_RANGE + self.player.position.x, action[1] * MAX_CURSOR_RANGE + self.player.position.y)
+        self.player.target_point = new_target_point
         
     def step(self, action):
         ''' Updates environment with action taken, returns new state and reward from state transition '''    
@@ -88,7 +86,6 @@ class Environment(gym.Env):
         if self.player.is_eaten:
             done = True
             self.player.mass = 0
-            self.max_mass = self.player.mass
         else:
             done = False
             #reward = 5*(self.player.mass - self.last_mass) + 0.01
@@ -113,7 +110,7 @@ class Environment(gym.Env):
             # print(self.max_mass)
             self.simulation.end()
         
-        self.simulation = Simulation(render=RENDER_ENV, player=False, map_dimensions=(DEFAULT_MAP_WIDTH, 0))
+        self.simulation = Simulation(render=RENDER_ENV, player=False, map_dimensions=(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT))
         
         self.player = self.simulation.agars[0]
         self.last_mass = MIN_AGAR_MASS

@@ -21,11 +21,11 @@ from stable_baselines3.common.monitor import Monitor
 #from stable_baselines3.common.results_plotter import load_results, ts2xy
 
 # --- GLOBAL --- #
-TIME_STEPS = 2_500_000
+TIME_STEPS = 100_000
 TRAINING = True
 PARAMETERS = {
     #'learning_rate': [1e-04, 1e-05, 1e-06, 1e-07],
-    'policy_kwargs': [dict(net_arch=[dict(pi=arch, vf=arch)]) for arch in [[100, 100, 100], [100, 100, 100], [100, 100, 100]]]
+    'policy_kwargs': [dict(net_arch=[dict(pi=arch, vf=arch)]) for arch in [[100, 100, 100]]]
 }
 
 def learning_rate(progress_remaining, start_lr=1e-04, final_lr=1e-06):
@@ -61,13 +61,12 @@ def main():
             env.env.parameter_combination = parameter_combination_copy
             #print("env.parameter_combination #######################", env.parameter_combination)
 
-            
             model = A2C('MlpPolicy', env, verbose=0 , learning_rate=learning_rate, **parameter_combination_copy)
             model.learn(total_timesteps=TIME_STEPS)
             model.save(f'/tmp/gym/models/A2C_3layers_100nodes_test{i}')
 
     else:
-        model = A2C.load('/tmp/gym/models/A2C_3layers_100nodes_test2')
+        model = A2C.load('/tmp/gym/good_models1D/A2C_3layers_100nodes_test1')
 
         while (1):
             obs = env.reset()
