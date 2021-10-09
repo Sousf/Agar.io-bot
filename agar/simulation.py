@@ -22,11 +22,11 @@ from checkSwitch import Switch
 # default values for simulation (if not specified on initialization)
 RENDER = True
 DEFAULT_NUM_BOTS = 5
-DEFAULT_ENEMY_RESPAWN_TIME = 0.1
+DEFAULT_ENEMY_RESPAWN_TIME = 10
 DEFAULT_NUM_VIRUSES = 0
 DEFAULT_VIRUS_SPAWN_RATE = 0.000001 # viruses per second
 DEFAULT_NUM_BLOBS = 250
-DEFAULT_BLOB_SPAWN_RATE = 5 # blob batches per second
+DEFAULT_BLOB_SPAWN_RATE = 50 # blob batches per second
 BLOB_BATCH_SIZE = 10
 DEFAULT_FRAME_RATE = 60
 DEFAULT_RUN_TIME = -1

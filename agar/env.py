@@ -1,24 +1,23 @@
-import gym
-from gym import spaces
+from gym import spaces, Env
 from gym.utils import seeding
 import numpy as np
 from simulation import Simulation, DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT
-from agar import MAX_CURSOR_RANGE, SmartBot, MIN_AGAR_MASS
+from agar import MAX_CURSOR_RANGE, MIN_AGAR_MASS
 from vectors import Vector
-from dataclasses import dataclass
 import pygame
-from time import sleep
+from typing import Optional, Tuple
+from numpy import ndarray
 
 
 RENDER_ENV = True
 clock = pygame.time.Clock()
 
-class Environment(gym.Env):  
+class Environment(Env):  
     # required for stable baselines 
-    metadata = { 'render.modes': ['human'] }
+    metadata = {'render.modes': ['human']}
     MAX_EPISODE_TIMESTEPS = 10_000
     
-    def __init__(self):
+    def __init__(self) -> None:
         ''' Initialising JUST the environment '''
         self.logger = []
         
@@ -37,35 +36,36 @@ class Environment(gym.Env):
         self.t = 0
         self.reset(first_sim=True)
 
-    def _next_observation(self):        
-        ''' Return the matrices and vector that represents the new state - an observation (that exists in the observation_space) ''' 
-        channel_obs = np.zeros((self.n_grid_rows, self.n_grid_cols, self.n_channels))
-        self.player.get_channel_obs(channel_obs)
-        
-        return channel_obs
-
-    def _take_action(self, action) -> None:
+    def _take_action(self, action: ndarray) -> None:
         ''' Takes in an action vector (which exists in the action_space) and enacts that action on the state
             Translates RL agent's action into the simulation '''
-        new_target_point = Vector(action[0] * MAX_CURSOR_RANGE + self.player.position.x, action[1] * MAX_CURSOR_RANGE + self.player.position.y)
+        new_target_point = Vector(action[0] * MAX_CURSOR_RANGE + self.player.position.x, 
+                                  action[1] * MAX_CURSOR_RANGE + self.player.position.y)
         self.player.target_point = new_target_point
         
-    def step(self, action):
-        ''' Updates environment with action taken, returns new state and reward from state transition '''    
-
+    def step(self, action: ndarray) -> Tuple:
+        ''' Updates environment with action taken, returns new state and reward from state transition 
+            Note that action has already been decided and passed in to this method '''    
         self.simulation.update()
-
-        # Take action
         self._take_action(action)
-         
-        obs = self._next_observation()
-
-        reward, done = self.get_reward()
-
+        obs = self._get_obs()
+        reward = self._get_reward()
         self.t += 1
+
+        # Check if simulation is over (Did we die?)
+        done = False
+        if self.player.is_eaten:
+            done = True
+            self.player.mass = 0
+
         # if self.t >= self.MAX_EPISODE_TIMESTEPS:    
         #    done = True
 
+        log_dict = self._log()
+        return obs, reward, done, log_dict 
+
+    def _log(self) -> dict:
+        ''' Create logging dictionary for step method '''
         log_dict = { 
             "step": self.t, 
             "player mass": self.last_mass,
@@ -75,51 +75,36 @@ class Environment(gym.Env):
         }
         if self.parameter_combination is not None:
             log_dict = {**log_dict, **self.parameter_combination}
-            
-        return obs, reward, done, log_dict 
 
-    def get_reward(self):
+        return log_dict
+
+    def _get_reward(self) -> float:
         ''' Gets the reward for the current timestep '''
-        reward = 0
-        
-        # Check if simulation is over (Did we die?)
-        if self.player.is_eaten:
-            done = True
-            self.player.mass = 0
-        else:
-            done = False
-            #reward = 5*(self.player.mass - self.last_mass) + 0.01
-
-        # Originally was - self.max_mass
-        reward += self.player.mass - self.last_mass #self.max_mass
+        reward = self.player.mass - self.last_mass
         self.last_mass = self.player.mass
+        self.max_mass = max(self.player.mass, self.max_mass)
 
-        # if (reward > 5):
-        #     print(reward, end='\n')
+        return reward
 
-        if (self.player.mass > self.max_mass):
-             self.max_mass = self.player.mass
-        
-        return reward, done
+    def _get_obs(self) -> ndarray:
+        ''' Gets the current observation of shape (n_grid_rows, n_grid_cols, n_channels) '''
+        return self.player.get_channel_obs(self.n_grid_rows, self.n_grid_cols, self.n_channels)
 
-    def reset(self, first_sim=False):
+    def reset(self, first_sim: bool=False):
         '''Reset everything as if we just started (for a new episode)
            Involves setting up a new simulation etc. '''
 
         if not first_sim:
-            # print(self.max_mass)
             self.simulation.end()
         
         self.simulation = Simulation(render=RENDER_ENV, player=False, map_dimensions=(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT))
         
         self.player = self.simulation.agars[0]
-        self.last_mass = MIN_AGAR_MASS
-        self.max_mass = self.last_mass
+        self.max_mass = self.last_mass = MIN_AGAR_MASS
         self.t = 0
 
-        obs = self._next_observation() 
-        return obs
+        return self._get_obs()
 
-    def _seed(self, seed=None):
+    def _seed(self, seed: Optional[int]=None) -> None:
+        ''' Set seed '''
         self.np_random, seed = seeding.np_random(seed)
-        return [seed]

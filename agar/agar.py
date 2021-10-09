@@ -6,6 +6,7 @@ import tkinter as gui
 from threading import Timer
 import pygame as game
 from dataclasses import dataclass
+import numpy as np
 
 """ LOCAL MODULES """
 from vectors import Vector
@@ -577,9 +578,9 @@ class SmartBot(Agar):
 
         pass
 
-    def get_channel_obs(self, obs) -> None:
+    def get_channel_obs(self, n_grid_rows, n_grid_cols, n_channelobs) -> None:
         ''' obs: np.array(x, y, num_channels)'''
-
+        obs = np.zeros((n_grid_rows, n_grid_cols, n_channelobs))
         dimensions = obs.shape[:2]
         self.create_grid(dimensions)
 
@@ -600,7 +601,8 @@ class SmartBot(Agar):
                 # Check for blobs (count)
                 for blob in self.simulation.blobs:
                     if (box.colliderect(blob.rect)):
-                        obs[i, j, 1] += 1 #blob.mass ################################################ CHANGE TO MASS?
+                        # Agent sees number of blobs but not their mass
+                        obs[i, j, 1] += 1
 
         # Rescale channels to be [0, 1]
         # Enemies (/MAX_AGAR_MASS)
@@ -612,7 +614,7 @@ class SmartBot(Agar):
         # Agent mass
         obs[0, 0, 2] = self.mass / MAX_AGAR_MASS
 
-        return
+        return obs
 
     def create_grid(self, dimensions):
 
@@ -624,14 +626,14 @@ class SmartBot(Agar):
         '''
         self.grid = []
 
-        box_height = self.simulation.vision_dimensions[1] / dimensions[0] # - self.simulation.renderer.focus.position)
-        box_width = self.simulation.vision_dimensions[0] / dimensions[1] #+ self.position.x # - self.simulation.renderer.focus.position)
+        box_height = self.simulation.vision_dimensions[1] / dimensions[0]
+        box_width  = self.simulation.vision_dimensions[0] / dimensions[1]
         for i in range(dimensions[0]):
             row = []
             for j in range(dimensions[1]):
-                #print("HEREEEE", i , j * box_width , (j+1) * box_width) 
-                # Rect((left, top), (width, height)) 
-                rect = game.Rect( (j * box_width + self.position.x - (self.simulation.vision_dimensions[0] / 2), i * box_height + + self.position.y - (self.simulation.vision_dimensions[1] / 2)), (box_width, box_height) )
+                rect = game.Rect((j * box_width  + self.position.x - (self.simulation.vision_dimensions[0] / 2), 
+                                  i * box_height + self.position.y - (self.simulation.vision_dimensions[1] / 2)), 
+                                  (box_width, box_height))
                 row.append(rect)
             self.grid.append(row)
 
