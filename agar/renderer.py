@@ -1,9 +1,9 @@
 import pygame as game
 from agar import Agar
-from vectors import Vector
-from debug import Debug
-from color import Color
-from color import Palette
+from utils.vectors import Vector
+from utils.debug import Debug
+from utils.color import Color
+from utils.color import Palette
 
 """ RENDERING """
 class Renderer():

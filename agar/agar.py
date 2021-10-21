@@ -1,17 +1,16 @@
 """ IMPORTED LIBRARIES """
+import timeit
 import time
 import math
 import random
-import tkinter as gui
-from threading import Timer
 import pygame as game
 from dataclasses import dataclass
 import numpy as np
 
 """ LOCAL MODULES """
-from vectors import Vector
-from color import Palette
-from debug import Debug
+from utils.vectors import Vector
+from utils.color import Palette
+from utils.debug import Debug
 
 """ GLOBAL VARIABLES """
 # default agar parameters (used if not specified at initialisation)
@@ -353,16 +352,17 @@ class Agar():
         if (self.can_eat == False or self == agar): 
             return
 
+        """ The circular dependency here makes me very unhappy :( """
         # can always eat blobs
-        if (type(agar) == Blob):
+        if (type(agar).__name__ == "Blob"):
             if (self.encompasses(agar)):
                 self.eat(agar)
                 return
         # viruses can't do anything beyond this point (only eat blobs)
-        if (type(self) == Virus):
+        if (type(self).__name__ == "Virus"):
             return
         # on the other hand, if we hit a virus
-        elif (type(agar) == Virus):
+        elif (type(agar).__name__ == "Virus"):
             if (self.mass > VIRUS_EAT_THRESHOLD and self.encompasses(agar)):
                 # eat the virus then pop the cell upto 16 pieces
                 self.eat_virus(agar)
@@ -394,6 +394,8 @@ class Agar():
         return False
 
     def eat_virus(self, agar):
+
+        # I genuinely cannot remember how this is working
 
         self.eat(agar)
 
@@ -564,292 +566,29 @@ class Agar():
         str_id = type(self).__name__ + str(self.int_id)
         return str_id
 
-
-class SmartBot(Agar):
-    _color = Palette.BLUE
+if __name__ == "__main__":
+    agars = []
+    for i in range(100):
+        agars.append(Agar(simulation = None));
     
-    def update_think(self):
-        # all thinking done in workspace
+    print("Checking motions")
+    start_time = time.time()
+    for x in range(10000):
+        for agar in agars:
+            agar.update_velocity(0.1)
+            agar.update_position(0.1)
+            agar.check_within_bounds((100, 100))
+    end_time = time.time() - start_time;
+    print("Test took around: ", time.strftime('%H:%M:%S', time.gmtime(end_time)), "\n")
 
-        # but need to pass that thinking to children
-        """for child in self.children:
-            if (child.can_think):
-                child.target_point = self.target_point"""
+    print("Checking sizes")
+    start_time = time.time()
+    for x in range(10000):
+        for agar in agars:
+            agar.update_size(0.1)
+    end_time = time.time() - start_time;
+    print("Test took around: ", time.strftime('%H:%M:%S', time.gmtime(end_time)), "\n")    
 
-        pass
-
-    def get_channel_obs(self, n_grid_rows, n_grid_cols, n_channelobs) -> None:
-        ''' obs: np.array(x, y, num_channels)'''
-        obs = np.zeros((n_grid_rows, n_grid_cols, n_channelobs))
-        dimensions = obs.shape[:2]
-        self.create_grid(dimensions)
-
-        # check grid for collisions with other agars
-        for i, row in enumerate(self.grid):
-            for j, box in enumerate(row):
-                # Check for enemies (avg mass)
-                total_mass = count = 0
-                for agar in self.simulation.agars:
-                    if (agar != self):
-                        if (box.colliderect(agar.rect)):
-                            # there is an enemy here
-                            count += 1
-                            total_mass += agar.mass
-
-                obs[i, j, 0] = total_mass / count if count else 0
-                        
-                # Check for blobs (count)
-                for blob in self.simulation.blobs:
-                    if (box.colliderect(blob.rect)):
-                        # Agent sees number of blobs but not their mass
-                        obs[i, j, 1] += 1
-
-        # Rescale channels to be [0, 1]
-        # Enemies (/MAX_AGAR_MASS)
-        obs[:, :, 0] /= MAX_AGAR_MASS
-
-        # Blobs (/50)
-        obs[:, :, 1] /= 50
-
-        # Agent mass
-        obs[0, 0, 2] = self.mass / MAX_AGAR_MASS
-
-        return obs
-
-    def create_grid(self, dimensions):
-
-        '''
-        dimensions = np.array(x, y, number_of_channels)
-            x, y = 2, 4
-                □□□□
-                □□□□
-        '''
-        self.grid = []
-
-        box_height = self.simulation.vision_dimensions[1] / dimensions[0]
-        box_width  = self.simulation.vision_dimensions[0] / dimensions[1]
-        for i in range(dimensions[0]):
-            row = []
-            for j in range(dimensions[1]):
-                rect = game.Rect((j * box_width  + self.position.x - (self.simulation.vision_dimensions[0] / 2), 
-                                  i * box_height + self.position.y - (self.simulation.vision_dimensions[1] / 2)), 
-                                  (box_width, box_height))
-                row.append(rect)
-            self.grid.append(row)
-
-        #rect = game.Rect( self.position.x - 300, self.position.y - 300, self.position.x + 300, self.position.y + 300)
-        #game.draw.rect(surface = self.simulation.renderer.window, color = self.color_gradient[1],  rect = rect)
-
-        return
-
-class Player(Agar):
-    """ A player controlled agar """
-    _color = Palette.BLUE
-
-    # update the velocity of the agar to be towards the mouse of the player
-    def decide_target_point(self) -> None:
-        self.target_point = self.get_mouse_relative_pos()
-        return
-
-    # split if the keyboard is pressed
-    def decide_to_split(self) -> bool:
-        if (self.check_key(game.K_SPACE)):
-            self.split()
-            return True
-        return False
-
-    # split if the keyboard is pressed
-    def decide_to_eject(self) -> bool:
-        if (self.check_key(game.K_w)):
-            self.eject()
-            return True
-        return False
-
-    def check_key(self, key) -> bool:
-        pressed_keys = game.key.get_pressed()
-        return pressed_keys[key]
-
-
-    def get_mouse_relative_pos(self):
-        # get the appropriate mouse coordinates
-        mouse_relative_pos = game.mouse.get_pos()
-        mouse_vector = Vector(mouse_relative_pos[0], mouse_relative_pos[1])
-
-        # get the absolute mouse position
-        if (self.parent == None):     
-            mouse_absolute_pos = mouse_vector + self.position - self.simulation.vision_center
-        else:
-            mouse_absolute_pos = mouse_vector + self.parent.position - self.simulation.vision_center
-
-        return mouse_absolute_pos
-
-class DumbBot(Agar):
-    """ A 'Dumb' Agar bot that randomly picks a direction to move in """
-    _color = Palette.RED
-
-    # randomly select a direction to move in
-    def decide_target_point(self) -> None:
-        # when they split, both agars need to be moving towards a certain point
-        # the agars that have the same parent need to be able to communicate with each other (?)
-        # right now the child agars move independently of the parent which is incorrect
-        vision_bounds = self.simulation.vision_dimensions
-        if (random.random() > 0.95):
-            self.target_point = Vector.random_vector_within_bounds([0, vision_bounds[0]], [0, vision_bounds[1]]) + self.position - self.simulation.vision_center
-        return
-
-    # randomly decide to split
-    def decide_to_split(self) -> bool:
-        if (random.random() > 0.95):
-            self.split()
-            return True
-        return False
-
-    # randomly decide to eject
-    def decide_to_eject(self) -> bool:
-        if (random.random() > 0.95):
-            self.eject()
-            return True
-        return False
-
-class Blob(Agar):
-    """ The 'Blob' Agars scattered around the map that stay still and exist only to be eaten, with randomly vared size """
-    _color = Palette.GREEN
-
-    def __init__(self, simulation, 
-                 int_id : int = DEFAULT_ID,
-                 color_gradient : tuple = None,
-                 min_mass : float = MIN_BLOB_MASS, 
-                 max_mass : float = MAX_BLOB_MASS,
-                 position : Vector = DEFAULT_AGAR_POSITION, 
-                 rect : game.Rect = None
-                 ) -> None:
-
-        # randomly generate the size of the blob
-        self.min_mass = min_mass
-        self.min_mass = max_mass
-        mass = random.random() * (max_mass - min_mass) + min_mass
-
-        # initialize the rest of the agar
-        Agar.__init__(self, simulation, 
-                      int_id = int_id, 
-                      mass = mass, 
-                      color_gradient = color_gradient,
-                      target_point = position,
-                      position = position, 
-                      speed = 0, 
-                      size_loss_rate = 0, 
-                      can_think = False, 
-                      can_merge = False,
-                      can_split = False,
-                      can_eat = False,
-                      rect = rect)
-        return
-
-    def update_size(self, time_interval : float = 0) -> float:
-        # blob size does not change
-        return
-
-class Virus(Agar):
-    _color = Palette.YELLOW
-    def __init__(self, simulation, 
-                 int_id = DEFAULT_ID,
-                 target_point : Vector = None,
-                 position : Vector = DEFAULT_AGAR_POSITION, 
-                 rect : game.Rect = None,
-                 color_gradient : tuple = None,
-                 parent = None,
-                 is_eaten : bool = False
-                 ) -> None:
-
-        self.num_blobs_eaten = 0
-        self.incoming_blob_direction = Vector()
-        if (target_point == None):
-            target_point = position
-
-        Agar.__init__(self, simulation, 
-                      int_id = int_id, 
-                      mass = VIRUS_BASE_MASS, 
-                      size_loss_rate = 0,
-                      color_gradient = color_gradient,
-                      target_point = target_point,
-                      position = position, 
-                      speed = 500, 
-                      can_think = True, 
-                      can_merge = False,
-                      can_split = False,
-                      can_eat = True,
-                      parent = parent,
-                      rect = rect)
-
-        return
-
-
-    # viruses should only eat blobs
-    def eat(self, agar) -> None:
-        Debug.agar(self.id + " eats " + agar.id + ", gaining {0:.2f} size".format(agar.mass / 5))
-        # self.mass = self.mass + agar.mass / EAT_MASS_GAIN_FACTOR
-        if (agar.mass > 5):
-            self.num_blobs_eaten += 1
-            self.incoming_blob_direction = (self.position - agar.position).normalize()
-
-        agar.disable()
-        return
-
-    # split itself if you're too big
-    def decide_to_split(self) -> bool:
-        if (self.num_blobs_eaten >= VIRUS_POP_NUMBER):
-            # target point should be decided by where the blob is coming in from
-            self.split()
-            return True
-        return False
-
-    def split(self) -> None:
-        self.check_split()
-        if (self.can_split == False): return
-        Debug.agar(self.id + " is splitting")
-
-        # splits the agar
-        clone = self.split_clone()   
-        self.can_split = False
-
-        # slight delay before gaining control
-        clone.delayed_think = self.simulation.create_timer(time_interval = SPLIT_CHILD_THINKER_DELAY, method = clone.enable_think)
-        
-        # delay before this can merge back to the parent
-        clone.delayed_merge = False
-        
-        # delay before these can split again
-        clone.delayed_split = self.simulation.create_timer(time_interval = DEFAULT_SPLIT_DELAY, method = clone.enable_split)
-        self.delayed_split = self.simulation.create_timer(time_interval = DEFAULT_SPLIT_DELAY, method = self.enable_split)
-
-        # appends it to the list of agars in the simulation
-        #self.children.append(clone)
-        self.simulation.agars.append(clone)     
-        return
-
-    # issues
-    def split_clone(self):
-        clone = type(self)(self.simulation, 
-                    int_id = self.int_id, 
-                    target_point = self.incoming_blob_direction * 500 + self.target_point,
-                    position = self.position,
-                    parent = None
-                    )
-        # get the upper most parent
-        clone.can_think = True
-        clone.velocity = clone.target_velocity.normalize() * SPLIT_SPEED # no acceleration on start up
-        clone.mass = VIRUS_BASE_MASS
-        self.mass = VIRUS_BASE_MASS
-        clone.position = self.position + (clone.target_velocity.normalize() * (self.size + clone.size + 10))
-        self.num_blobs_eaten = 0
-        return clone
-
-    def check_split(self):
-        if (self.delayed_split == False):
-            if (self.num_blobs_eaten < VIRUS_POP_NUMBER):
-                self.can_split = False
-            else:
-                self.can_split = True
-        return
+    print("Successfully ran Agar")
 
 

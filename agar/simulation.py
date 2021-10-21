@@ -1,33 +1,36 @@
 """ LIBRARIES """
 import math
 import random
-import tkinter as gui
 import pygame as game
 from threading import Timer
 
 """ LOCAL MODULES """
-from agar import Agar
-from agar import Player
-from agar import DumbBot
-from agar import SmartBot
-from agar import Blob
-from agar import Virus
-from vectors import Vector
-from grid import Grid
-from debug import Debug
+# Renderer
 from renderer import Renderer
-from checkSwitch import Switch
+from utils.vectors import Vector
+from utils.debug import Debug
+
+# --- Entities --- #
+from agar import Agar
+# Player
+from entities.player import Player
+# Bots
+from entities.bots import SmartBot
+from entities.bots import DumbBot
+# Objects
+from entities.objects import Blob
+from entities.objects import Virus
 
 """ MAGIC VARIABLES """
-# default values for simulation (if not specified on initialization)
+# Default values for simulation, used if not specified on initialization.
 RENDER = True
 DEFAULT_NUM_BOTS = 5
-DEFAULT_ENEMY_RESPAWN_TIME = 10
+DEFAULT_ENEMY_RESPAWN_RATE = 0.1
 DEFAULT_NUM_VIRUSES = 0
-DEFAULT_VIRUS_SPAWN_RATE = 0.000001 # viruses per second
+DEFAULT_VIRUS_SPAWN_RATE = 1e-9 # viruses per second
 DEFAULT_NUM_BLOBS = 250
-DEFAULT_BLOB_SPAWN_RATE = 50 # blob batches per second
-BLOB_BATCH_SIZE = 10
+DEFAULT_BLOB_SPAWN_RATE = 5 # The rate at which a batch of blobs spawns.
+BLOB_BATCH_SIZE = 10 # The number of blobs spawned per blob.
 DEFAULT_FRAME_RATE = 60
 DEFAULT_RUN_TIME = -1
 DEFAULT_MAP_HEIGHT = 4000
@@ -85,9 +88,7 @@ class Simulation():
            self.renderer = Renderer(self, width = window_dimensions[0], height = window_dimensions[1])
 
         # spawn the player if necessary
-        # self.switch = 1
         self.agars = []
-        self.switch = Switch.get_switch()
 
         if (player): 
             self.spawn_player()
@@ -142,7 +143,7 @@ class Simulation():
             # appends it to the list of agars in the simulation
             self.agars.append(bot)
             
-        self.create_timer(time_interval = (1 / DEFAULT_ENEMY_RESPAWN_TIME), method = self.spawn_bots)
+        self.create_timer(time_interval = (1 / DEFAULT_ENEMY_RESPAWN_RATE), method = self.spawn_bots)
             # pass
         return 
     
