@@ -25,16 +25,16 @@ from entities.objects import Virus
 # default values for simulation (if not specified on initialization)
 RENDER = True
 DEFAULT_NUM_BOTS = 5
-DEFAULT_ENEMY_RESPAWN_RATE = 10
+DEFAULT_ENEMY_RESPAWN_RATE = 10 // 4
 DEFAULT_NUM_VIRUSES = 0
 DEFAULT_VIRUS_SPAWN_RATE = 0.000001 # viruses per second
-DEFAULT_NUM_BLOBS = 250
-DEFAULT_BLOB_SPAWN_RATE = 50 # blob batches per second
-BLOB_BATCH_SIZE = 10
+DEFAULT_NUM_BLOBS = 250 // 4
+DEFAULT_BLOB_SPAWN_RATE = 50 // 4 # blob batches per second
+BLOB_BATCH_SIZE = 10 
 DEFAULT_FRAME_RATE = 60
 DEFAULT_RUN_TIME = -1
-DEFAULT_MAP_HEIGHT = 4000
-DEFAULT_MAP_WIDTH = 8000
+DEFAULT_MAP_HEIGHT = 4000 // 2
+DEFAULT_MAP_WIDTH = 8000 // 2
 DEFAULT_WINDOW_HEIGHT = int(1080 / 2)
 DEFAULT_WINDOW_WIDTH = int(1920 / 2)
 
@@ -117,14 +117,14 @@ class Simulation():
     """ SPAWNERS """
     # spawns the player to be used in the simulation
     def spawn_player(self) -> None:
-        spawn_pos = Vector(self.map_dimensions[0] / 2, self.map_dimensions[1] / 2)
+        spawn_pos = Vector.random_vector_within_bounds((0, self.map_dimensions[0]), (0, self.map_dimensions[1]))
         player = Player(self, int_id = 0, position = spawn_pos, can_think = True)
         self.agars.append(player)  
         return 
 
     # spawns the player to be used in the simulation
     def spawn_ai(self) -> None:
-        spawn_pos = Vector(self.map_dimensions[0] / 2, self.map_dimensions[1] / 2)
+        spawn_pos = Vector.random_vector_within_bounds((0, self.map_dimensions[0]), (0, self.map_dimensions[1]))
         player = SmartBot(self, int_id = 0, position = spawn_pos, can_think = True) 
         self.agars.append(player)  
         return 

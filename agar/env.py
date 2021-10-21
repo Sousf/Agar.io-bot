@@ -7,10 +7,13 @@ from utils.vectors import Vector
 import pygame
 from typing import Optional, Tuple
 from numpy import ndarray
+from guppy import hpy
 
 # --- Magic Variables --- #
 RENDER = True
 clock = pygame.time.Clock()
+
+h = hpy()
 
 class Environment(Env):  
     # required for stable baselines 
@@ -42,6 +45,7 @@ class Environment(Env):
         new_target_point = Vector(action[0] * MAX_CURSOR_RANGE + self.agent.position.x, 
                                   action[1] * MAX_CURSOR_RANGE + self.agent.position.y)
         self.agent.target_point = new_target_point
+        print(h.heap())
         return
         
     def step(self, action: ndarray) -> Tuple:

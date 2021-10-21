@@ -7,6 +7,7 @@ from os import path
 from itertools import product
 from copy import deepcopy
 import logging
+from guppy import hpy
 
 import warnings
 warnings.filterwarnings("ignore", "Distutils was imported before Setuptools. This usage is discouraged and may exhibit undesirable behaviors or errors. Please use Setuptools' objects directly or at least import Setuptools first.",  UserWarning, "setuptools.distutils_patch")
@@ -60,6 +61,16 @@ def get_time_estimate(combinations, total_steps = TIME_STEPS, test_steps = 1e3, 
 
 
 def main():
+    import torch
+    if torch.cuda.is_available():  
+        dev = "cuda:0" 
+    else:
+        dev = "cpu"  
+    print(torch.cuda.is_available())
+    device = torch.device(dev)  
+    a = torch.zeros(4,3)  
+    a = a.to(device)
+
     # directory for data
     log_dir = "/tmp/gym/"
     os.makedirs(log_dir, exist_ok=True)
@@ -83,14 +94,19 @@ def main():
 
         for i, parameter_combination in enumerate(parameter_combinations):
             # Copying this because the model is messing with the variable.
-            #parameter_combination_copy = deepcopy(parameter_combination)
-            parameter_combination_copy = parameter_combination
-            print('PARAMETER COMBINATION', parameter_combination_copy, 'env ts', env.env.t)
+            parameter_combination_copy = deepcopy(parameter_combination)
+            # parameter_combination_copy = parameter_combination
+            print('Parameter Combination: ', parameter_combination_copy, 'env ts', env.env.t)
             env.env.parameter_combination = parameter_combination_copy
 
-            model = A2C('CnnPolicy', env, verbose=0, learning_rate=learning_rate, **parameter_combination_copy)
-            model.learn(total_timesteps=TIME_STEPS)
-            print('PARAMETER COMBINATION', parameter_combination_copy)
+            model = A2C('MlpPolicy', env, verbose=0, learning_rate=learning_rate, **parameter_combination_copy)
+            try:
+                print('try')
+                model.learn(total_timesteps=TIME_STEPS)
+            except:
+                print('except')
+            finally:
+                print('finally')
             model.save(log_dir + f'models/A2C_3layers_100nodes_test{i}')
 
     else:
