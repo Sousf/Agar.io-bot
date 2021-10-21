@@ -27,11 +27,11 @@ from stable_baselines3.common.monitor import Monitor
 
 
 # --- GLOBAL --- #
-TIME_STEPS = 2_500_000
-TRAINING = False
+TIME_STEPS = 1000
+TRAINING = True
 PARAMETERS = {
     #'learning_rate': [1e-04, 1e-05, 1e-06, 1e-07],
-    'policy_kwargs': [dict(net_arch=[dict(pi=arch, vf=arch)]) for arch in 1*[[100, 100, 100]]]
+    'policy_kwargs': [dict(net_arch=[dict(pi=arch, vf=arch)]) for arch in 1*[[100, 100], [100, 100, 100], [1000, 1000], [1000, 1000, 1000]]]
 }
 
 def learning_rate(progress_remaining, start_lr=1e-04, final_lr=1e-06):
@@ -61,10 +61,8 @@ def get_time_estimate(combinations, total_steps = TIME_STEPS, test_steps = 1e3, 
 
 def main():
     # directory for data
-    log_dir = os.getcwd() + "\\data\\" # "/tmp/gym/"
-    # print(log_dir)
+    log_dir = "/tmp/gym/"
     os.makedirs(log_dir, exist_ok=True)
-
     # initialize an environment
     # env = make_vec_env(Environment, n_envs=1, monitor_dir=log_dir)
     env = Monitor(Environment(), filename=log_dir+"tr_500k", info_keywords=("step", "agent mass", "agent max mass", "blobs", "agars") + tuple(PARAMETERS.keys()))
@@ -81,7 +79,7 @@ def main():
         for values in list(product(*PARAMETERS.values())):
             parameter_combinations.append(dict(zip(PARAMETERS.keys(), values)))
 
-        get_time_estimate(parameter_combinations);
+        # get_time_estimate(parameter_combinations)
 
         for i, parameter_combination in enumerate(parameter_combinations):
             # Copying this because the model is messing with the variable.
@@ -90,13 +88,13 @@ def main():
             print('PARAMETER COMBINATION', parameter_combination_copy, 'env ts', env.env.t)
             env.env.parameter_combination = parameter_combination_copy
 
-            model = A2C('MlpPolicy', env, verbose=0, learning_rate=learning_rate, **parameter_combination_copy)
+            model = A2C('CnnPolicy', env, verbose=0, learning_rate=learning_rate, **parameter_combination_copy)
             model.learn(total_timesteps=TIME_STEPS)
             print('PARAMETER COMBINATION', parameter_combination_copy)
             model.save(log_dir + f'models/A2C_3layers_100nodes_test{i}')
 
     else:
-        model = A2C.load(log_dir + f'models/A2C_3layers_100nodes_test0')
+        model = A2C.load(log_dir + "batch1_2D/A2C_3layers_100nodes_test3") # A2C.load(log_dir + f'models/A2C_3layers_100nodes_test1')
 
         while True:
             obs = env.reset()

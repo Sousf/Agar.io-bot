@@ -24,8 +24,8 @@ class Environment(Env):
         self._seed()
         
         # define the action space dimensions
-        self.n_grid_rows = 1
-        self.n_grid_cols = 12
+        self.n_grid_rows = 9
+        self.n_grid_cols = 15
         self.n_channels = 2 + 1 # (enemies, blobs), info
         self.action_space = spaces.Box(low=-1, high=1, shape = (2, ))
         self.parameter_combination = None
@@ -89,6 +89,7 @@ class Environment(Env):
 
     def _get_obs(self) -> ndarray:
         ''' Gets the current observation of shape (n_grid_rows, n_grid_cols, n_channels) '''
+        
         return self.agent.get_channel_obs(self.n_grid_rows, self.n_grid_cols, self.n_channels)
 
     def reset(self, first_sim: bool=False):

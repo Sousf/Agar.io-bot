@@ -22,15 +22,15 @@ from entities.objects import Blob
 from entities.objects import Virus
 
 """ MAGIC VARIABLES """
-# Default values for simulation, used if not specified on initialization.
+# default values for simulation (if not specified on initialization)
 RENDER = True
 DEFAULT_NUM_BOTS = 5
-DEFAULT_ENEMY_RESPAWN_RATE = 0.1
+DEFAULT_ENEMY_RESPAWN_RATE = 10
 DEFAULT_NUM_VIRUSES = 0
-DEFAULT_VIRUS_SPAWN_RATE = 1e-9 # viruses per second
+DEFAULT_VIRUS_SPAWN_RATE = 0.000001 # viruses per second
 DEFAULT_NUM_BLOBS = 250
-DEFAULT_BLOB_SPAWN_RATE = 5 # The rate at which a batch of blobs spawns.
-BLOB_BATCH_SIZE = 10 # The number of blobs spawned per blob.
+DEFAULT_BLOB_SPAWN_RATE = 50 # blob batches per second
+BLOB_BATCH_SIZE = 10
 DEFAULT_FRAME_RATE = 60
 DEFAULT_RUN_TIME = -1
 DEFAULT_MAP_HEIGHT = 4000
